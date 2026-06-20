@@ -1,0 +1,166 @@
+@use '@/styles/variables.scss' as *;
+
+.stationCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.compact {
+    padding: $spacing-md;
+  }
+
+  &.freeGlow {
+    box-shadow: 0 2rpx 16rpx rgba(16, 185, 129, 0.15);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.stationCode {
+  width: 72rpx;
+  height: 72rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+}
+
+.codeText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.stationInfo {
+  flex: 1;
+}
+
+.stationName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.statusTag {
+  display: inline-flex;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.stylistInfo {
+  margin-left: $spacing-md;
+}
+
+.stylistAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  border: 2rpx solid $color-border;
+}
+
+.stylistRow {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-sm;
+  border-bottom: 1rpx dashed $color-divider;
+}
+
+.stylistLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-right: $spacing-md;
+}
+
+.stylistName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.loadSection {
+  margin-top: $spacing-sm;
+}
+
+.loadHeader {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: $spacing-sm;
+}
+
+.loadLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.loadPercent {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  margin-left: $spacing-sm;
+}
+
+.loadLevel {
+  font-size: $font-size-xs;
+  margin-left: auto;
+  padding: 2rpx 12rpx;
+  background: currentColor;
+  opacity: 0.1;
+  border-radius: $radius-xs;
+}
+
+.loadBar {
+  height: 12rpx;
+  background: $color-divider;
+  border-radius: 6rpx;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.loadFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-success 0%, #34D399 100%);
+  border-radius: 6rpx;
+  transition: width $transition-slow;
+
+  &.loadWarning {
+    background: linear-gradient(90deg, $color-warning 0%, #FBBF24 100%);
+  }
+
+  &.loadDanger {
+    background: linear-gradient(90deg, $color-error 0%, #F87171 100%);
+  }
+}
+
+.loadStats {
+  display: flex;
+  align-items: center;
+}
+
+.loadStat {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.recommendTag {
+  font-size: $font-size-xs;
+  color: $color-success;
+  font-weight: $font-weight-semibold;
+  margin-left: auto;
+}

@@ -1,0 +1,346 @@
+@import '@/styles/theme';
+
+.page {
+  min-height: 100vh;
+  background: $bg-gradient;
+  padding-bottom: 200px;
+}
+
+.statusBanner {
+  padding: 40px 32px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  text-align: center;
+}
+
+.statusIcon {
+  font-size: 80px;
+  margin-bottom: 16px;
+}
+
+.statusTitle {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.statusDesc {
+  font-size: 26px;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.orderInfoCard {
+  margin: -24px 32px 24px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: $card-shadow;
+  position: relative;
+  z-index: 1;
+}
+
+.orderNoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid $border-light;
+  margin-bottom: 24px;
+}
+
+.orderNoLabel {
+  font-size: 26px;
+  color: $text-secondary;
+}
+
+.orderNoValue {
+  font-size: 26px;
+  color: $text-primary;
+  font-family: $font-mono;
+  font-weight: 500;
+}
+
+.infoSection {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  font-size: 28px;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 0;
+}
+
+.infoLabel {
+  font-size: 26px;
+  color: $text-secondary;
+  min-width: 160px;
+}
+
+.infoValue {
+  font-size: 26px;
+  color: $text-primary;
+  text-align: right;
+  flex: 1;
+  line-height: 1.5;
+}
+
+.stylistCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(244, 114, 182, 0.08) 100%);
+  border-radius: 20px;
+}
+
+.stylistAvatar {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: 3px solid rgba(139, 92, 246, 0.2);
+}
+
+.stylistInfo {
+  flex: 1;
+}
+
+.stylistName {
+  font-size: 30px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.stylistMeta {
+  font-size: 24px;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+.stationBadge {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, $station-free 0%, #34D399 100%);
+  color: #fff;
+  border-radius: 16px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.serviceList {
+  background: $bg-light;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.serviceItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.serviceItem:last-child {
+  border-bottom: none;
+}
+
+.serviceName {
+  font-size: 26px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.serviceDuration {
+  font-size: 22px;
+  color: $text-secondary;
+  margin-top: 6px;
+}
+
+.servicePrice {
+  font-size: 28px;
+  font-weight: 600;
+  color: $primary;
+}
+
+.priceBreakdown {
+  background: $bg-light;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.priceLabel {
+  font-size: 26px;
+  color: $text-secondary;
+}
+
+.priceValue {
+  font-size: 26px;
+  color: $text-primary;
+}
+
+.priceDivider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 16px 0;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.totalLabel {
+  font-size: 30px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.totalValue {
+  font-size: 44px;
+  font-weight: 700;
+  color: $primary;
+}
+
+.totalUnit {
+  font-size: 28px;
+  font-weight: 600;
+  color: $primary;
+}
+
+.timelineCard {
+  margin: 0 32px 24px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: $card-shadow;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 40px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  bottom: 12px;
+  width: 2px;
+  background: $border-light;
+}
+
+.timelineItem {
+  position: relative;
+  padding-bottom: 32px;
+}
+
+.timelineItem:last-child {
+  padding-bottom: 0;
+}
+
+.timelineDot {
+  position: absolute;
+  left: -32px;
+  top: 6px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $border-light;
+  border: 4px solid #fff;
+  box-shadow: 0 0 0 2px $border-light;
+}
+
+.timelineDot.active {
+  background: $primary;
+  box-shadow: 0 0 0 2px $primary;
+}
+
+.timelineTime {
+  font-size: 22px;
+  color: $text-secondary;
+  margin-bottom: 8px;
+}
+
+.timelineTitle {
+  font-size: 28px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.timelineDesc {
+  font-size: 24px;
+  color: $text-secondary;
+  line-height: 1.5;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #fff;
+  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 16px;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.btn {
+  flex: 1;
+  padding: 24px;
+  border-radius: 20px;
+  font-size: 30px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.btnOutline {
+  background: #fff;
+  border: 2px solid $primary;
+  color: $primary;
+}
+
+.btnDanger {
+  background: #fff;
+  border: 2px solid #EF4444;
+  color: #EF4444;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+.btnDisabled {
+  background: #E5E7EB;
+  color: #9CA3AF;
+}

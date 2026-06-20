@@ -1,0 +1,154 @@
+@use '@/styles/variables.scss' as *;
+
+.serviceCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.selected {
+    border-color: $color-primary;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(244, 114, 182, 0.05) 100%);
+  }
+
+  &.compact {
+    padding: $spacing-md;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.categoryIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+}
+
+.titleRow {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.hotTag {
+  margin-left: $spacing-sm;
+  background: linear-gradient(135deg, $color-error 0%, $color-warning 100%);
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-sm;
+  font-weight: $font-weight-medium;
+}
+
+.checkbox {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 3rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &.checked {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+.checkMark {
+  color: $color-text-white;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-md;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.meta {
+  display: flex;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1rpx dashed $color-divider;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.metaLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.metaValue {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.priceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.priceWrapper {
+  display: flex;
+  align-items: baseline;
+}
+
+.currency {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.price {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-left: 2rpx;
+}
+
+.originalPrice {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-decoration: line-through;
+  margin-left: $spacing-sm;
+}
+
+.categoryTag {
+  background: rgba(139, 92, 246, 0.1);
+  color: $color-primary;
+  font-size: $font-size-xs;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+  font-weight: $font-weight-medium;
+}

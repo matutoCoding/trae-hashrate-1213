@@ -1,0 +1,318 @@
+@import '@/styles/theme';
+
+.page {
+  min-height: 100vh;
+  background: $bg-gradient;
+  padding-bottom: 120px;
+}
+
+.header {
+  padding: 32px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+}
+
+.headerTitle {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.headerSubtitle {
+  font-size: 26px;
+  opacity: 0.9;
+}
+
+.statsRow {
+  display: flex;
+  margin-top: 32px;
+  gap: 16px;
+}
+
+.statItem {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 20px 12px;
+  text-align: center;
+}
+
+.statNum {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 22px;
+  opacity: 0.9;
+  margin-top: 6px;
+}
+
+.filterBar {
+  margin: -24px 32px 24px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: $card-shadow;
+  display: flex;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+  overflow-x: auto;
+}
+
+.filterChip {
+  padding: 14px 28px;
+  border-radius: 16px;
+  font-size: 26px;
+  color: $text-secondary;
+  background: $bg-light;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.filterChipActive {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.stylistList {
+  padding: 0 32px;
+}
+
+.stylistCard {
+  background: #fff;
+  border-radius: 28px;
+  padding: 28px;
+  margin-bottom: 24px;
+  box-shadow: $card-shadow;
+}
+
+.stylistHeader {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid rgba(139, 92, 246, 0.1);
+  flex-shrink: 0;
+}
+
+.stylistInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.stylistName {
+  font-size: 34px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.levelBadge {
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.levelJunior { background: rgba(107, 114, 128, 0.1); color: #6B7280; }
+.levelSenior { background: rgba(59, 130, 246, 0.1); color: #3B82F6; }
+.levelExpert { background: rgba(139, 92, 246, 0.1); color: #8B5CF6; }
+.levelDirector { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #8B4513; }
+
+.statusBadge {
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.statusOnDuty { background: rgba(16, 185, 129, 0.1); color: $station-free; }
+.statusBreak { background: rgba(245, 158, 11, 0.1); color: $warning; }
+.statusOffDuty { background: rgba(107, 114, 128, 0.1); color: #6B7280; }
+.statusLeave { background: rgba(239, 68, 68, 0.1); color: #EF4444; }
+
+.titleRow {
+  font-size: 26px;
+  color: $text-secondary;
+  margin-bottom: 10px;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.rating {
+  font-size: 26px;
+  font-weight: 600;
+  color: $warning;
+}
+
+.ratingStar {
+  color: $warning;
+}
+
+.skillsSection {
+  margin-bottom: 20px;
+}
+
+.sectionLabel {
+  font-size: 24px;
+  color: $text-secondary;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.skillTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.skillTag {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(244, 114, 182, 0.08) 100%);
+  color: $primary;
+  border-radius: 12px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.loadSection {
+  padding: 20px 24px;
+  background: $bg-light;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.loadHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.loadLabel {
+  font-size: 24px;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.loadValue {
+  font-size: 26px;
+  font-weight: 600;
+  color: $primary;
+}
+
+.loadBar {
+  height: 16px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.loadFill {
+  height: 100%;
+  background: linear-gradient(90deg, $primary 0%, $secondary 100%);
+  border-radius: 8px;
+  transition: width 0.5s;
+}
+
+.loadStats {
+  display: flex;
+  justify-content: space-between;
+}
+
+.loadStat {
+  font-size: 22px;
+  color: $text-secondary;
+}
+
+.loadStat strong {
+  color: $text-primary;
+  font-weight: 600;
+}
+
+.scheduleSection {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(59, 130, 246, 0.06) 100%);
+  border-radius: 20px;
+}
+
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.scheduleItem {
+  font-size: 24px;
+  color: $text-secondary;
+}
+
+.scheduleItem strong {
+  color: $text-primary;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.weekDays {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.dayChip {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 22px;
+  background: #fff;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.dayChipActive {
+  background: $primary;
+  color: #fff;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.addBtn {
+  padding: 28px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  border-radius: 20px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}

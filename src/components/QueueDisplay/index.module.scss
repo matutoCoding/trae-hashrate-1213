@@ -1,0 +1,340 @@
+@use '@/styles/variables.scss' as *;
+
+.wrapper {
+  width: 100%;
+}
+
+.callingSection {
+  margin-bottom: $spacing-xl;
+}
+
+.callingHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.callingIcon {
+  font-size: 36rpx;
+  margin-right: $spacing-sm;
+}
+
+.callingLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.recallBtn {
+  margin-left: auto;
+  padding: 8rpx 24rpx;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: $radius-button;
+}
+
+.recallText {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.callingCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-xl;
+  padding: 48rpx 32rpx;
+  text-align: center;
+  box-shadow: 0 8rpx 32rpx rgba(139, 92, 246, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.callingNumberRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-md;
+}
+
+.callingNumber {
+  font-size: 96rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  letter-spacing: 8rpx;
+  text-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.15);
+}
+
+.callingPulse {
+  width: 20rpx;
+  height: 20rpx;
+  background: #22C55E;
+  border-radius: 50%;
+  margin-left: $spacing-md;
+  animation: pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 20rpx #22C55E;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.7; }
+}
+
+.callingName {
+  font-size: $font-size-xl;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-md;
+}
+
+.serviceTags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+}
+
+.serviceTag {
+  background: rgba(255, 255, 255, 0.2);
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+}
+
+.stationHint {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.stationHintText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.startServiceBtn {
+  background: $color-text-white;
+  padding: 20rpx 48rpx;
+  border-radius: $radius-button;
+  display: inline-block;
+}
+
+.startServiceText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.callNextBtn {
+  margin-left: auto;
+  padding: 12rpx 32rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-button;
+}
+
+.callNextText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
+
+.servicingScroll {
+  white-space: nowrap;
+  width: 100%;
+}
+
+.servicingRow {
+  display: flex;
+  gap: $spacing-md;
+  padding-bottom: $spacing-sm;
+}
+
+.servicingCard {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 220rpx;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  margin-right: $spacing-sm;
+}
+
+.servicingCode {
+  width: 48rpx;
+  height: 48rpx;
+  background: linear-gradient(135deg, $color-warning 0%, #FBBF24 100%);
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+}
+
+.servicingNumber {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.servicingName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: $spacing-xs 0;
+  @include text-ellipsis;
+  max-width: 100%;
+}
+
+.servicingProgress {
+  display: flex;
+  align-items: center;
+  margin-top: $spacing-xs;
+}
+
+.progressDot {
+  width: 12rpx;
+  height: 12rpx;
+  background: $color-success;
+  border-radius: 50%;
+  margin-right: 8rpx;
+  animation: pulse 1.5s infinite;
+}
+
+.progressText {
+  font-size: $font-size-xs;
+  color: $color-success;
+}
+
+.emptyMini {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding: $spacing-md;
+}
+
+.waitingList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.waitingItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.waitingPosition {
+  width: 56rpx;
+  height: 56rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-right: $spacing-md;
+}
+
+.waitingInfo {
+  flex: 1;
+}
+
+.waitingHeaderRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6rpx;
+}
+
+.waitingNumber {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-right: $spacing-md;
+}
+
+.waitingName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.serviceTagsSmall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+}
+
+.serviceTagSmall {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  background: $color-bg-hover;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.waitingTime {
+  text-align: center;
+  margin-left: $spacing-md;
+}
+
+.waitingMin {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+  display: block;
+}
+
+.waitingMinLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64rpx 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+}
+
+.emptyIcon {
+  font-size: 64rpx;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

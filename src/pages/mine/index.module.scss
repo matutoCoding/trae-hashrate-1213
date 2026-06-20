@@ -1,0 +1,362 @@
+@import '@/styles/theme';
+
+.page {
+  min-height: 100vh;
+  background: $bg-gradient;
+  padding-bottom: 160px;
+}
+
+.memberHeader {
+  padding: 40px 32px 80px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+
+.memberHeader::before {
+  content: '';
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.memberHeader::after {
+  content: '';
+  position: absolute;
+  bottom: -80px;
+  left: -80px;
+  width: 240px;
+  height: 240px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+}
+
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.levelBadge {
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.levelBronze {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+}
+
+.levelSilver {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+}
+
+.levelGold {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #8B4513;
+}
+
+.levelDiamond {
+  background: linear-gradient(135deg, #B9F2FF 0%, #67E8F9 50%, #22D3EE 100%);
+  color: #0E7490;
+}
+
+.userPhone {
+  font-size: 26px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.joinDate {
+  font-size: 22px;
+  opacity: 0.75;
+}
+
+.settingsIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  backdrop-filter: blur(10px);
+}
+
+.balanceCard {
+  margin: -56px 32px 0;
+  background: #fff;
+  border-radius: 32px;
+  padding: 32px;
+  box-shadow: $card-shadow;
+  position: relative;
+  z-index: 2;
+}
+
+.balanceTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.balanceLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.balanceIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.balanceLabel {
+  font-size: 26px;
+  color: $text-secondary;
+  margin-bottom: 6px;
+}
+
+.balanceAmount {
+  font-size: 48px;
+  font-weight: 700;
+  color: $text-primary;
+  line-height: 1.2;
+}
+
+.balanceUnit {
+  font-size: 28px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.rechargeBtn {
+  padding: 16px 40px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 26px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid $border-light;
+}
+
+.statBlock {
+  text-align: center;
+}
+
+.statValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: $text-primary;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.statName {
+  font-size: 22px;
+  color: $text-secondary;
+}
+
+.quickActions {
+  margin: 32px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px;
+  box-shadow: $card-shadow;
+}
+
+.sectionTitle {
+  font-size: 30px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  font-size: 28px;
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.actionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.actionIconWrap {
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+}
+
+.actionPurple { background: rgba(139, 92, 246, 0.1); }
+.actionPink { background: rgba(244, 114, 182, 0.1); }
+.actionBlue { background: rgba(59, 130, 246, 0.1); }
+.actionGreen { background: rgba(16, 185, 129, 0.1); }
+.actionOrange { background: rgba(245, 158, 11, 0.1); }
+.actionRed { background: rgba(239, 68, 68, 0.1); }
+.actionTeal { background: rgba(20, 184, 166, 0.1); }
+.actionIndigo { background: rgba(99, 102, 241, 0.1); }
+
+.actionLabel {
+  font-size: 24px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.menuList {
+  margin: 0 32px 32px;
+  background: #fff;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: $card-shadow;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 32px;
+  border-bottom: 1px solid $border-light;
+  gap: 20px;
+}
+
+.menuItem:last-child {
+  border-bottom: none;
+}
+
+.menuIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.menuText {
+  flex: 1;
+  font-size: 28px;
+  color: $text-primary;
+  font-weight: 500;
+}
+
+.menuBadge {
+  padding: 6px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
+.menuArrow {
+  font-size: 28px;
+  color: #C4C4C4;
+}
+
+.promotionCard {
+  margin: 0 32px 32px;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+  border-radius: 28px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.promoIcon {
+  font-size: 64px;
+}
+
+.promoContent {
+  flex: 1;
+}
+
+.promoTitle {
+  font-size: 30px;
+  font-weight: 700;
+  color: #92400E;
+  margin-bottom: 8px;
+}
+
+.promoDesc {
+  font-size: 24px;
+  color: #B45309;
+  line-height: 1.5;
+}
+
+.promoBtn {
+  padding: 16px 32px;
+  background: #92400E;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.versionText {
+  text-align: center;
+  font-size: 22px;
+  color: $text-secondary;
+  padding: 32px;
+  opacity: 0.6;
+}

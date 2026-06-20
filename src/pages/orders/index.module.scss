@@ -1,0 +1,329 @@
+@import '@/styles/theme';
+
+.page {
+  min-height: 100vh;
+  background: $bg-gradient;
+  padding-bottom: 160px;
+}
+
+.header {
+  padding: 32px 32px 24px;
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  border-radius: 0 0 40px 40px;
+  margin-bottom: 24px;
+}
+
+.headerTitle {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.headerSubtitle {
+  font-size: 26px;
+  opacity: 0.9;
+}
+
+.statsRow {
+  display: flex;
+  margin-top: 32px;
+  gap: 16px;
+}
+
+.statItem {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.statNum {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.statLabel {
+  font-size: 22px;
+  opacity: 0.9;
+  margin-top: 8px;
+}
+
+.tabsContainer {
+  padding: 0 32px;
+  margin-bottom: 24px;
+}
+
+.tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 8px;
+  box-shadow: $card-shadow;
+  overflow-x: auto;
+}
+
+.tab {
+  flex: 1;
+  padding: 20px 16px;
+  text-align: center;
+  border-radius: 16px;
+  font-size: 26px;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+  transition: all 0.3s;
+  min-width: 120px;
+}
+
+.tabActive {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+  font-weight: 600;
+}
+
+.orderList {
+  padding: 0 32px;
+}
+
+.orderCard {
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: $card-shadow;
+}
+
+.orderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid $border-light;
+}
+
+.orderNo {
+  font-size: 24px;
+  color: $text-secondary;
+  font-family: $font-mono;
+}
+
+.orderStatus {
+  padding: 8px 20px;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.orderBody {
+  display: flex;
+  gap: 24px;
+}
+
+.customerInfo {
+  flex: 1;
+}
+
+.customerName {
+  font-size: 32px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.customerPhone {
+  font-size: 24px;
+  color: $text-secondary;
+  margin-bottom: 16px;
+}
+
+.serviceTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.serviceTag {
+  padding: 8px 20px;
+  background: $bg-light;
+  border-radius: 12px;
+  font-size: 24px;
+  color: $text-secondary;
+}
+
+.timeInfo {
+  min-width: 200px;
+  text-align: right;
+}
+
+.timeDate {
+  font-size: 28px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 8px;
+}
+
+.timeRange {
+  font-size: 24px;
+  color: $primary;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.timeDuration {
+  font-size: 22px;
+  color: $text-secondary;
+}
+
+.orderFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid $border-light;
+}
+
+.priceInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.originalPrice {
+  font-size: 26px;
+  color: $text-secondary;
+  text-decoration: line-through;
+}
+
+.finalPrice {
+  font-size: 40px;
+  font-weight: 700;
+  color: $primary;
+}
+
+.priceUnit {
+  font-size: 26px;
+  font-weight: 600;
+  color: $primary;
+}
+
+.actionBtns {
+  display: flex;
+  gap: 16px;
+}
+
+.btn {
+  padding: 16px 32px;
+  border-radius: 16px;
+  font-size: 26px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.btnOutline {
+  background: #fff;
+  border: 2px solid $primary;
+  color: $primary;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, $primary 0%, $secondary 100%);
+  color: #fff;
+}
+
+.btnSecondary {
+  background: $bg-light;
+  color: $text-secondary;
+}
+
+.emptyState {
+  padding: 120px 32px;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 120px;
+  margin-bottom: 32px;
+  opacity: 0.5;
+}
+
+.emptyTitle {
+  font-size: 32px;
+  color: $text-primary;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.emptyDesc {
+  font-size: 26px;
+  color: $text-secondary;
+  line-height: 1.6;
+}
+
+.stylistInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(244, 114, 182, 0.08) 100%);
+  border-radius: 16px;
+}
+
+.stylistAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.stylistMeta {
+  flex: 1;
+}
+
+.stylistName {
+  font-size: 26px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.stylistTitle {
+  font-size: 22px;
+  color: $text-secondary;
+  margin-top: 4px;
+}
+
+.stationBadge {
+  padding: 8px 16px;
+  background: rgba(16, 185, 129, 0.1);
+  color: $station-free;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.queueInfo {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.queueNumber {
+  font-size: 36px;
+  font-weight: 700;
+  color: $warning;
+  font-family: $font-mono;
+}
+
+.queueText {
+  font-size: 24px;
+  color: $text-secondary;
+}

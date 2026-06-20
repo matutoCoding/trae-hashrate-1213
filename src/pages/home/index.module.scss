@@ -1,0 +1,409 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+}
+
+.hero {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  padding: 32rpx 32rpx 48rpx;
+  margin: 0 -32rpx;
+  border-radius: 0 0 32rpx 32rpx;
+  margin-bottom: $spacing-xl;
+}
+
+.heroTitle {
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.heroSubtitle {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.heroStats {
+  display: flex;
+  margin-top: 32rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-lg;
+  padding: 20rpx;
+}
+
+.heroStat {
+  flex: 1;
+  text-align: center;
+}
+
+.heroStatValue {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+}
+
+.heroStatLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.8);
+  margin-top: 4rpx;
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-xl;
+  box-shadow: $shadow-card;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+}
+
+.stepDot {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  margin-bottom: 8rpx;
+  transition: all $transition-base;
+
+  &.active {
+    background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+    color: $color-text-white;
+    box-shadow: 0 4rpx 12rpx rgba(139, 92, 246, 0.3);
+  }
+
+  &.done {
+    background: $color-success;
+    color: $color-text-white;
+  }
+}
+
+.stepText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+
+  &.activeText {
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.stepLine {
+  flex: 1;
+  height: 4rpx;
+  background: $color-divider;
+  margin: 0 8rpx;
+  margin-bottom: 28rpx;
+
+  &.activeLine {
+    background: linear-gradient(90deg, $color-primary, $color-secondary);
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.datePicker {
+  margin-bottom: $spacing-xl;
+}
+
+.dateScroll {
+  white-space: nowrap;
+}
+
+.dateList {
+  display: flex;
+  gap: $spacing-md;
+  padding-bottom: $spacing-sm;
+}
+
+.dateItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 120rpx;
+  padding: $spacing-md 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &.selected {
+    background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+    border-color: transparent;
+    box-shadow: 0 4rpx 20rpx rgba(139, 92, 246, 0.3);
+
+    .dateLabel, .dateDay, .dateMonth {
+      color: $color-text-white;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.4;
+  }
+}
+
+.dateLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.dateDay {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  line-height: 1;
+  margin: 4rpx 0;
+}
+
+.dateMonth {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.summaryCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: 0 4rpx 24rpx rgba(139, 92, 246, 0.15);
+  margin-bottom: 32rpx;
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1rpx dashed $color-divider;
+}
+
+.summaryTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.summaryCount {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 4rpx 16rpx;
+  border-radius: $radius-xs;
+}
+
+.summaryServices {
+  margin-bottom: $spacing-lg;
+}
+
+.summaryServiceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.summaryServiceName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.summaryServicePrice {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.summaryInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+}
+
+.summaryLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.summaryValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+
+  &.highlight {
+    color: $color-primary;
+  }
+}
+
+.summaryDivider {
+  height: 1rpx;
+  background: $color-divider;
+  margin: $spacing-md 0;
+}
+
+.summaryTotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: $spacing-md;
+}
+
+.summaryTotalLabel {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.summaryDiscount {
+  font-size: $font-size-xs;
+  color: $color-success;
+  margin-right: 16rpx;
+}
+
+.summaryTotalValue {
+  display: flex;
+  align-items: baseline;
+}
+
+.summaryCurrency {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.summaryPrice {
+  font-size: 48rpx;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+  margin-left: 2rpx;
+}
+
+.summaryOriginal {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-decoration: line-through;
+  margin-left: 12rpx;
+}
+
+.allocationHint {
+  display: flex;
+  align-items: center;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 16rpx 20rpx;
+  border-radius: $radius-md;
+  margin-top: $spacing-lg;
+}
+
+.allocationIcon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.allocationText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 24rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  z-index: 100;
+}
+
+.bottomInfo {
+  flex: 1;
+}
+
+.bottomPrice {
+  display: flex;
+  align-items: baseline;
+}
+
+.bottomCurrency {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+}
+
+.bottomAmount {
+  font-size: 40rpx;
+  color: $color-primary;
+  font-weight: $font-weight-bold;
+  margin-left: 2rpx;
+}
+
+.bottomHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.submitBtn {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  padding: 24rpx 64rpx;
+  border-radius: $radius-button;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-md;
+  box-shadow: 0 4rpx 20rpx rgba(139, 92, 246, 0.35);
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.disabled {
+    background: $color-border;
+    color: $color-text-disabled;
+    box-shadow: none;
+  }
+}

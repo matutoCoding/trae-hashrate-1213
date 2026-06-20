@@ -1,0 +1,117 @@
+@use '@/styles/variables.scss' as *;
+
+.wrapper {
+  height: 100%;
+}
+
+.group {
+  margin-bottom: $spacing-xl;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding: 0 $spacing-xs;
+}
+
+.groupIcon {
+  font-size: 32rpx;
+  margin-right: $spacing-sm;
+}
+
+.groupTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.groupHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-left: auto;
+}
+
+.slotGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+}
+
+.slot {
+  width: calc(33.33% - 12rpx);
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-sm;
+  text-align: center;
+  border: 2rpx solid $color-border;
+  position: relative;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+  }
+
+  &.disabled {
+    background: $color-bg-hover;
+    border-color: $color-divider;
+    opacity: 0.5;
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+    border-color: transparent;
+    box-shadow: 0 4rpx 20rpx rgba(139, 92, 246, 0.35);
+
+    .slotTime, .slotStatus text {
+      color: $color-text-white !important;
+    }
+
+    .remainingOk, .remainingFew {
+      background: rgba(255, 255, 255, 0.2) !important;
+    }
+  }
+}
+
+.slotTime {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.slotStatus {
+  margin-top: $spacing-xs;
+}
+
+.remainingOk {
+  font-size: $font-size-xs;
+  background: rgba(16, 185, 129, 0.1);
+  color: $color-success;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.remainingFew {
+  font-size: $font-size-xs;
+  background: rgba(245, 158, 11, 0.1);
+  color: $color-warning;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.fullText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.selectedBadge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  background: $color-success;
+  color: $color-text-white;
+  font-size: 18rpx;
+  padding: 2rpx 10rpx;
+  border-radius: $radius-sm;
+}

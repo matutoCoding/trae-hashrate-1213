@@ -1,0 +1,333 @@
+@import '@/styles/theme';
+
+.page {
+  min-height: 100vh;
+  background: $bg-gradient;
+  padding-bottom: 120px;
+}
+
+.header {
+  padding: 32px;
+  background: linear-gradient(135deg, #0EA5E9 0%, $primary 100%);
+  color: #fff;
+}
+
+.headerTitle {
+  font-size: 40px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.headerSubtitle {
+  font-size: 26px;
+  opacity: 0.9;
+}
+
+.loadOverview {
+  margin-top: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.overviewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.overviewLabel {
+  font-size: 26px;
+  opacity: 0.9;
+}
+
+.overviewPercent {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.overviewBar {
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.overviewFill {
+  height: 100%;
+  background: linear-gradient(90deg, #34D399 0%, #FBBF24 50%, #F87171 100%);
+  border-radius: 10px;
+}
+
+.overviewStats {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.overviewStat {
+  flex: 1;
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+.statDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.statNum {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.statText {
+  font-size: 22px;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.gridSection {
+  padding: 32px;
+}
+
+.sectionTitle {
+  font-size: 30px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon { font-size: 28px; }
+
+.stationsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.stationCard {
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: $card-shadow;
+  position: relative;
+  overflow: hidden;
+}
+
+.stationCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+}
+
+.stationFree::before { background: $station-free; }
+.stationBusy::before { background: $station-busy; }
+.stationMaintain::before { background: $station-maintain; }
+
+.stationTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.stationCode {
+  font-size: 22px;
+  color: $text-secondary;
+  font-family: $font-mono;
+}
+
+.stationStatus {
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.statusFree { background: rgba(16, 185, 129, 0.1); color: $station-free; }
+.statusBusy { background: rgba(245, 158, 11, 0.1); color: $station-busy; }
+.statusMaintain { background: rgba(239, 68, 68, 0.1); color: $station-maintain; }
+
+.stationName {
+  font-size: 32px;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 6px;
+}
+
+.stationType {
+  display: inline-block;
+  padding: 4px 12px;
+  background: $bg-light;
+  color: $text-secondary;
+  border-radius: 8px;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.loadBar {
+  height: 12px;
+  background: $bg-light;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.loadFill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s;
+}
+
+.loadFree { background: linear-gradient(90deg, $station-free 0%, #34D399 100%); }
+.loadBusy { background: linear-gradient(90deg, $station-busy 0%, #F59E0B 100%); }
+.loadHigh { background: linear-gradient(90deg, #F87171 0%, #EF4444 100%); }
+
+.loadText {
+  display: flex;
+  justify-content: space-between;
+  font-size: 22px;
+  color: $text-secondary;
+  margin-bottom: 16px;
+}
+
+.loadText strong {
+  color: $text-primary;
+  font-weight: 600;
+}
+
+.stylistRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid $border-light;
+}
+
+.stylistAvatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.stylistMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.stylistName {
+  font-size: 24px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.stylistTitle {
+  font-size: 20px;
+  color: $text-secondary;
+}
+
+.noStylist {
+  font-size: 22px;
+  color: #9CA3AF;
+  font-style: italic;
+}
+
+.transferSection {
+  margin: 0 32px 32px;
+  background: #fff;
+  border-radius: 28px;
+  padding: 28px;
+  box-shadow: $card-shadow;
+}
+
+.transferList {
+  margin-top: 8px;
+}
+
+.transferItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06) 0%, rgba(239, 68, 68, 0.06) 100%);
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+
+.transferIcon {
+  font-size: 36px;
+}
+
+.transferInfo {
+  flex: 1;
+}
+
+.transferText {
+  font-size: 26px;
+  font-weight: 600;
+  color: $text-primary;
+  margin-bottom: 6px;
+}
+
+.transferDesc {
+  font-size: 22px;
+  color: $text-secondary;
+}
+
+.transferBtn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #F59E0B 0%, #EF4444 100%);
+  color: #fff;
+  border-radius: 14px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px 32px calc(24px + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  display: flex;
+  gap: 16px;
+}
+
+.btn {
+  flex: 1;
+  padding: 24px;
+  border-radius: 18px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.btnOutline {
+  background: #fff;
+  border: 2px solid $primary;
+  color: $primary;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, #0EA5E9 0%, $primary 100%);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.3);
+}

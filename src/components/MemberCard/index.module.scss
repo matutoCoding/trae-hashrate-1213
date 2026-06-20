@@ -1,0 +1,195 @@
+@use '@/styles/variables.scss' as *;
+
+.memberCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  box-shadow: $shadow-card;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.cardBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200rpx;
+  border-radius: $radius-xl $radius-xl 0 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: $spacing-xl;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.avatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  border: 4rpx solid $color-bg-card;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+}
+
+.infoText {
+  margin-left: $spacing-md;
+  flex: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.name {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-right: $spacing-sm;
+}
+
+.levelBadge {
+  font-size: $font-size-xs;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-button;
+  font-weight: $font-weight-semibold;
+}
+
+.phone {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.points {
+  text-align: center;
+}
+
+.pointsValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-warning;
+  display: block;
+}
+
+.pointsLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.balanceRow {
+  display: flex;
+  align-items: center;
+  background: $color-bg-hover;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.balanceItem {
+  flex: 1;
+  text-align: center;
+}
+
+.balanceLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.balanceValueRow {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.currency {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.balanceValue {
+  font-size: 44rpx;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  margin-left: 2rpx;
+}
+
+.discountValue {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.divider {
+  width: 1rpx;
+  height: 64rpx;
+  background: $color-border;
+  margin: 0 $spacing-md;
+}
+
+.benefitsRow {
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-lg;
+  border-bottom: 1rpx dashed $color-divider;
+}
+
+.benefitsLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+.benefitTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.benefitTag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: rgba(139, 92, 246, 0.1);
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.statsRow {
+  display: flex;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

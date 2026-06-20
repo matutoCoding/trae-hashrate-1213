@@ -1,0 +1,236 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.empty {
+  padding: 80rpx;
+  text-align: center;
+  color: $color-text-tertiary;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  margin: 0 -32rpx $spacing-xl;
+  padding: 40rpx 32rpx;
+  border-radius: 0 0 32rpx 32rpx;
+  color: $color-text-white;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+}
+
+.codeBox {
+  width: 80rpx;
+  height: 80rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-right: $spacing-md;
+}
+
+.headerInfo {
+  flex: 1;
+}
+
+.stationName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+}
+
+.stationStylist {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 6rpx;
+  display: block;
+}
+
+.statusTag {
+  padding: 8rpx 20rpx;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+}
+
+.loadSection {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.loadRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.loadLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.loadPercent {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-left: auto;
+  margin-right: 16rpx;
+}
+
+.loadCount {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.loadBar {
+  height: 12rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.loadFill {
+  height: 100%;
+  border-radius: 6rpx;
+  transition: width 0.6s ease;
+}
+
+.statsGrid {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.statsItem {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  text-align: center;
+}
+
+.statsValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+}
+
+.statsLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 4rpx;
+  display: block;
+}
+
+.section {
+  margin-bottom: $spacing-xl;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: block;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 80rpx 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+}
+
+.emptyIcon {
+  font-size: 64rpx;
+  display: block;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.detailItem {
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+}
+
+.detailMain {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.detailLeft {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-wrap: wrap;
+}
+
+.typeTag {
+  font-size: $font-size-xs;
+  padding: 2rpx 14rpx;
+  border-radius: $radius-xs;
+  border: 1rpx solid;
+  font-weight: $font-weight-semibold;
+}
+
+.queueNumber {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.customerName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.completeBtn {
+  background: $color-success;
+  padding: 12rpx 28rpx;
+  border-radius: $radius-button;
+}
+
+.detailServices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8rpx;
+  margin-bottom: 6rpx;
+}
+
+.serviceTag {
+  font-size: $font-size-xs;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 2rpx 14rpx;
+  border-radius: $radius-xs;
+  color: $color-text-secondary;
+}
+
+.detailTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

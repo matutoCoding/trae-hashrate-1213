@@ -7,7 +7,9 @@ export default defineAppConfig({
     'pages/appointment-detail/index',
     'pages/stylist-manage/index',
     'pages/station-manage/index',
-    'pages/member-center/index'
+    'pages/member-center/index',
+    'pages/dashboard/index',
+    'pages/station-detail/index'
   ],
   window: {
     backgroundTextStyle: 'light',

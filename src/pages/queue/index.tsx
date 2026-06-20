@@ -9,15 +9,29 @@ import { getOverallLoadStats, calculateStationLoadBalance } from '@/utils/loadBa
 import styles from './index.module.scss';
 
 const QueuePage: React.FC = () => {
-  const { queue, currentCalling, servicingItems, callNext, recall, startServicing, getWaitingCount, completeServicing, updateServicingStation } = useQueueStore();
+  const {
+    queue, currentCalling, servicingItems, holdItems, completedCount, noShowCount,
+    callNext, recall, startServicing, getWaitingCount, completeServicing,
+    updateServicingStation, holdCalling, requeueCalling, markNoShow, restoreHold,
+    getTodayStatsByStation
+  } = useQueueStore();
   const { stations, stylists } = useStylistStore();
 
   const [showTransferSuggestions] = useState(true);
 
   const loadStats = useMemo(() => getOverallLoadStats(stations), [stations]);
   const loadBalance = useMemo(() => calculateStationLoadBalance(stations), [stations]);
+  const stationStats = useMemo(() => getTodayStatsByStation(), [stations, queue, servicingItems]);
 
   const waitingItems = useMemo(() => queue.filter(q => q.status === 'waiting'), [queue]);
+
+  const findQueueItemByAptId = (aptId: string | null) => {
+    if (!aptId) return null;
+    return queue.find(q => q.appointmentId === aptId) ||
+      servicingItems.find(q => q.appointmentId === aptId) ||
+      holdItems.find(q => q.appointmentId === aptId) ||
+      currentCalling?.appointmentId === aptId ? currentCalling : null;
+  };
 
   const transferSuggestions = useMemo(() => {
     if (!showTransferSuggestions) return [];
@@ -78,6 +92,44 @@ const QueuePage: React.FC = () => {
     Taro.showToast({ title: `${queueNumber} 开始服务`, icon: 'success' });
   };
 
+  const handleHold = (queueNumber: string) => {
+    holdCalling(queueNumber);
+    Taro.showToast({ title: `${queueNumber} 暂不服务`, icon: 'none' });
+  };
+
+  const handleRequeue = (queueNumber: string) => {
+    Taro.showModal({
+      title: '重新排队确认',
+      content: `确认将 ${queueNumber} 放回队尾重新排队？`,
+      success: (res) => {
+        if (res.confirm) {
+          requeueCalling(queueNumber);
+          Taro.showToast({ title: '已重新排队', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleNoShow = (queueNumber: string) => {
+    Taro.showModal({
+      title: '标记未到店',
+      content: `确认将 ${queueNumber} 标记为未到店？`,
+      confirmText: '确认标记',
+      confirmColor: '#EF4444',
+      success: (res) => {
+        if (res.confirm) {
+          markNoShow(queueNumber);
+          Taro.showToast({ title: '已标记未到店', icon: 'none' });
+        }
+      }
+    });
+  };
+
+  const handleRestoreHold = (queueNumber: string) => {
+    restoreHold(queueNumber);
+    Taro.showToast({ title: `${queueNumber} 已恢复排队`, icon: 'success' });
+  };
+
   const handleTransfer = (appointmentId: string | null, fromId: string, toId: string, fromCode: string, toCode: string) => {
     if (!appointmentId) {
       Taro.showToast({ title: '没有可调剂的顾客', icon: 'none' });
@@ -113,6 +165,14 @@ const QueuePage: React.FC = () => {
     });
   };
 
+  const handleOpenStation = (stationId: string) => {
+    Taro.navigateTo({ url: `/pages/station-detail/index?id=${stationId}` });
+  };
+
+  const handleOpenDashboard = () => {
+    Taro.navigateTo({ url: '/pages/dashboard/index' });
+  };
+
   const getLoadColor = (percent: number) => {
     if (percent < 30) return 'linear-gradient(90deg, #10B981 0%, #34D399 100%)';
     if (percent < 60) return 'linear-gradient(90deg, #3B82F6 0%, #60A5FA 100%)';
@@ -130,7 +190,12 @@ const QueuePage: React.FC = () => {
     <ScrollView className={styles.page} scrollY>
       <View className="pageContainer">
         <View className={styles.headerCard}>
-          <Text className={styles.headerTitle}>📢 实时叫号大屏</Text>
+          <View className={styles.headerRow}>
+            <Text className={styles.headerTitle}>📢 实时叫号大屏</Text>
+            <View className={styles.dashboardBtn} onClick={handleOpenDashboard}>
+              <Text style={{ fontSize: 22, color: '#8B5CF6', fontWeight: 600 }}>运营看板</Text>
+            </View>
+          </View>
           <View className={styles.statsRow}>
             <View className={styles.statCard}>
               <Text className={styles.statValue}>{servicingItems.length}</Text>
@@ -141,8 +206,16 @@ const QueuePage: React.FC = () => {
               <Text className={styles.statLabel}>等待中</Text>
             </View>
             <View className={styles.statCard}>
-              <Text className={styles.statValue}>{stations.filter(s => s.status === 'free').length}</Text>
-              <Text className={styles.statLabel}>空闲工位</Text>
+              <Text className={styles.statValue}>{holdItems.length}</Text>
+              <Text className={styles.statLabel}>暂不服务</Text>
+            </View>
+            <View className={styles.statCard}>
+              <Text className={styles.statValue}>{completedCount}</Text>
+              <Text className={styles.statLabel}>已完成</Text>
+            </View>
+            <View className={styles.statCard}>
+              <Text className={styles.statValue}>{noShowCount}</Text>
+              <Text className={styles.statLabel}>未到店</Text>
             </View>
           </View>
         </View>
@@ -178,9 +251,17 @@ const QueuePage: React.FC = () => {
           callingItem={currentCalling}
           waitingItems={waitingItems}
           servicingItems={servicingItems}
+          holdItems={holdItems}
+          stations={stations}
           onCallNext={handleCallNext}
           onRecall={handleRecall}
           onStartService={handleStartService}
+          onHold={handleHold}
+          onRequeue={handleRequeue}
+          onNoShow={handleNoShow}
+          onRestoreHold={handleRestoreHold}
+          onComplete={handleComplete}
+          onOpenStation={handleOpenStation}
           showActions={true}
         />
 
@@ -209,8 +290,22 @@ const QueuePage: React.FC = () => {
             {stations.map(station => {
               const load = Math.round((station.currentLoad / station.maxDailyLoad) * 100);
               const stylist = stylists.find(s => s.id === station.stylistId);
+              const stats = stationStats[station.id] || { waiting: 0, calling: 0, servicing: 0, completed: 0, noShow: 0 };
+              const servicingItem = station.currentAppointmentId
+                ? (findQueueItemByAptId(station.currentAppointmentId) ||
+                   servicingItems.find(q => q.appointmentId === station.currentAppointmentId))
+                : null;
+              const callingItem = station.callingAppointmentId
+                ? (findQueueItemByAptId(station.callingAppointmentId) ||
+                   (currentCalling?.appointmentId === station.callingAppointmentId ? currentCalling : null))
+                : null;
+
               return (
-                <View key={station.id} className={styles.miniStation}>
+                <View
+                  key={station.id}
+                  className={styles.miniStation}
+                  onClick={() => handleOpenStation(station.id)}
+                >
                   <View className={styles.miniHeader}>
                     <View className={styles.miniCode}>{station.code}</View>
                     <Text className={styles.miniName}>{station.name}</Text>
@@ -220,8 +315,24 @@ const QueuePage: React.FC = () => {
                   </View>
                   {stylist && (
                     <Text style={{ fontSize: 22, color: '#6B7280', marginBottom: 8 }}>
-                      {stylist.name}
+                      {stylist.name} · {stylist.title}
                     </Text>
+                  )}
+                  {servicingItem && (
+                    <View className={styles.miniCustomer} style={{ background: 'rgba(245,158,11,0.08)', marginBottom: 6 }}>
+                      <Text style={{ fontSize: 20, color: '#F59E0B', fontWeight: 600 }}>服务中</Text>
+                      <Text style={{ fontSize: 22, color: '#1F2937', fontWeight: 600, marginLeft: 8 }}>
+                        {servicingItem.queueNumber} {servicingItem.customerName}
+                      </Text>
+                    </View>
+                  )}
+                  {callingItem && !servicingItem && (
+                    <View className={styles.miniCustomer} style={{ background: 'rgba(139,92,246,0.08)', marginBottom: 6 }}>
+                      <Text style={{ fontSize: 20, color: '#8B5CF6', fontWeight: 600 }}>叫号中</Text>
+                      <Text style={{ fontSize: 22, color: '#1F2937', fontWeight: 600, marginLeft: 8 }}>
+                        {callingItem.queueNumber} {callingItem.customerName}
+                      </Text>
+                    </View>
                   )}
                   <View className={styles.miniLoad}>
                     <View className={styles.miniLoadBar}>
@@ -235,6 +346,9 @@ const QueuePage: React.FC = () => {
                     </View>
                     <View className={styles.miniLoadText}>
                       {station.currentLoad}/{station.maxDailyLoad}单 · {load}%
+                      <Text style={{ fontSize: 20, color: '#9CA3AF', marginLeft: 10 }}>
+                        完成{stats.completed} 未到{stats.noShow}
+                      </Text>
                     </View>
                   </View>
                 </View>

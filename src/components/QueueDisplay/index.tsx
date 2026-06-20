@@ -8,9 +8,17 @@ interface QueueDisplayProps {
   callingItem: QueueItem | null;
   waitingItems: QueueItem[];
   servicingItems: QueueItem[];
+  holdItems: QueueItem[];
+  stations: { id: string; code: string; name: string }[];
   onCallNext?: () => void;
   onRecall?: (queueNumber: string) => void;
   onStartService?: (queueNumber: string, stationId: string) => void;
+  onHold?: (queueNumber: string) => void;
+  onRequeue?: (queueNumber: string) => void;
+  onNoShow?: (queueNumber: string) => void;
+  onRestoreHold?: (queueNumber: string) => void;
+  onComplete?: (queueNumber: string) => void;
+  onOpenStation?: (stationId: string) => void;
   showActions?: boolean;
 }
 
@@ -18,11 +26,25 @@ const QueueDisplay: React.FC<QueueDisplayProps> = ({
   callingItem,
   waitingItems,
   servicingItems,
+  holdItems,
+  stations,
   onCallNext,
   onRecall,
   onStartService,
+  onHold,
+  onRequeue,
+  onNoShow,
+  onRestoreHold,
+  onComplete,
+  onOpenStation,
   showActions = false
 }) => {
+  const getStationCode = (stationId?: string) => {
+    if (!stationId) return '';
+    const s = stations.find(st => st.id === stationId);
+    return s ? s.code : stationId.replace('st', '');
+  };
+
   return (
     <View className={styles.wrapper}>
       {callingItem && (
@@ -49,18 +71,70 @@ const QueueDisplay: React.FC<QueueDisplayProps> = ({
               ))}
             </View>
             {callingItem.stationId && (
-              <View className={styles.stationHint}>
-                <Text className={styles.stationHintText}>请前往 {callingItem.stationId.replace('st', '')} 号工位</Text>
+              <View className={styles.stationHint} onClick={() => onOpenStation?.(callingItem.stationId!)}>
+                <Text className={styles.stationHintText}>请前往 {getStationCode(callingItem.stationId)} 工位</Text>
               </View>
             )}
-            {showActions && onStartService && callingItem.stationId && (
-              <View
-                className={styles.startServiceBtn}
-                onClick={() => onStartService(callingItem.queueNumber, callingItem.stationId!)}
-              >
-                <Text className={styles.startServiceText}>开始服务</Text>
+            {showActions && callingItem.stationId && (
+              <View className={styles.callingActions}>
+                {onStartService && (
+                  <View
+                    className={styles.startServiceBtn}
+                    onClick={() => onStartService(callingItem.queueNumber, callingItem.stationId!)}
+                  >
+                    <Text className={styles.startServiceText}>开始服务</Text>
+                  </View>
+                )}
+                {onHold && (
+                  <View className={styles.holdBtn} onClick={() => onHold(callingItem.queueNumber)}>
+                    <Text className={styles.actionBtnText}>暂不服务</Text>
+                  </View>
+                )}
+                {onRequeue && (
+                  <View className={styles.requeueBtn} onClick={() => onRequeue(callingItem.queueNumber)}>
+                    <Text className={styles.actionBtnText}>重新排队</Text>
+                  </View>
+                )}
+                {onNoShow && (
+                  <View className={styles.noshowBtn} onClick={() => onNoShow(callingItem.queueNumber)}>
+                    <Text className={styles.actionBtnText}>未到店</Text>
+                  </View>
+                )}
               </View>
             )}
+          </View>
+        </View>
+      )}
+
+      {holdItems.length > 0 && (
+        <View className={styles.section}>
+          <View className={styles.sectionHeader}>
+            <Text className={styles.sectionTitle}>暂不服务 ({holdItems.length})</Text>
+          </View>
+          <View className={styles.holdList}>
+            {holdItems.map(item => (
+              <View key={item.queueNumber} className={styles.holdItem}>
+                <View className={styles.holdInfo}>
+                  <Text className={styles.holdNumber}>{item.queueNumber}</Text>
+                  <Text className={styles.holdName}>{item.customerName}</Text>
+                </View>
+                {showActions && onRestoreHold && (
+                  <View className={styles.restoreBtn} onClick={() => onRestoreHold(item.queueNumber)}>
+                    <Text className={styles.actionBtnText}>恢复排队</Text>
+                  </View>
+                )}
+                {showActions && onRequeue && (
+                  <View className={styles.requeueBtn} style={{ marginLeft: 8 }} onClick={() => onRequeue(item.queueNumber)}>
+                    <Text className={styles.actionBtnText}>重排</Text>
+                  </View>
+                )}
+                {showActions && onNoShow && (
+                  <View className={styles.noshowBtn} style={{ marginLeft: 8 }} onClick={() => onNoShow(item.queueNumber)}>
+                    <Text className={styles.actionBtnText}>未到</Text>
+                  </View>
+                )}
+              </View>
+            ))}
           </View>
         </View>
       )}
@@ -76,13 +150,23 @@ const QueueDisplay: React.FC<QueueDisplayProps> = ({
             ) : (
               servicingItems.map(item => (
                 <View key={item.queueNumber} className={styles.servicingCard}>
-                  <View className={styles.servicingCode}>{item.stationId?.replace('st', '') || '?'}</View>
+                  <View
+                    className={styles.servicingCode}
+                    onClick={() => onOpenStation?.(item.stationId!)}
+                  >
+                    {getStationCode(item.stationId)}
+                  </View>
                   <Text className={styles.servicingNumber}>{item.queueNumber}</Text>
                   <Text className={styles.servicingName}>{item.customerName}</Text>
                   <View className={styles.servicingProgress}>
                     <View className={styles.progressDot} />
                     <Text className={styles.progressText}>进行中</Text>
                   </View>
+                  {showActions && onComplete && (
+                    <View className={styles.completeBtn} onClick={() => onComplete(item.queueNumber)}>
+                      <Text className={styles.actionBtnText}>完成</Text>
+                    </View>
+                  )}
                 </View>
               ))
             )}

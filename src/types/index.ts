@@ -115,7 +115,7 @@ export interface QueueItem {
   customerName: string;
   serviceNames: string[];
   estimatedWait: number;
-  status: 'waiting' | 'calling' | 'servicing';
+  status: 'waiting' | 'calling' | 'servicing' | 'hold' | 'noShow' | 'completed';
   stationId?: string;
   callCount: number;
 }

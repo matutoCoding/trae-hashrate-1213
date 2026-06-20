@@ -26,7 +26,8 @@ const HomePage: React.FC = () => {
     setSelectedDate,
     setSelectedTime,
     addAppointment,
-    appointments
+    appointments,
+    validateSelectedTime
   } = useAppointmentStore();
 
   const { stylists, stations } = useStylistStore();
@@ -96,6 +97,19 @@ const HomePage: React.FC = () => {
   const handleSubmit = async () => {
     if (!isLoggedIn) {
       Taro.showToast({ title: '请先登录', icon: 'none' });
+      return;
+    }
+
+    if (!validateSelectedTime(stylists, stations)) {
+      Taro.showModal({
+        title: '时段已不可用',
+        content: '抱歉，该时段预约情况已发生变化，请重新选择时间。',
+        showCancel: false,
+        success: () => {
+          setSelectedTime(null);
+          setCurrentStep('time');
+        }
+      });
       return;
     }
 
@@ -274,7 +288,13 @@ const HomePage: React.FC = () => {
                 key={service.id}
                 service={service}
                 selected={!!selectedServices.find(s => s.id === service.id)}
-                onSelect={() => toggleService(service)}
+                onSelect={() => {
+                  const hadTime = !!selectedTime;
+                  toggleService(service, stylists, stations);
+                  if (hadTime && !useAppointmentStore.getState().selectedTime) {
+                    Taro.showToast({ title: '服务变更，已清空时间', icon: 'none' });
+                  }
+                }}
               />
             ))}
           </>

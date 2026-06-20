@@ -114,17 +114,61 @@
   font-weight: $font-weight-medium;
 }
 
+.callingActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  justify-content: center;
+}
+
 .startServiceBtn {
   background: $color-text-white;
-  padding: 20rpx 48rpx;
+  padding: 16rpx 32rpx;
   border-radius: $radius-button;
   display: inline-block;
 }
 
 .startServiceText {
-  font-size: $font-size-md;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-primary;
+}
+
+.holdBtn {
+  background: rgba(245, 158, 11, 0.85);
+  padding: 16rpx 28rpx;
+  border-radius: $radius-button;
+}
+
+.requeueBtn {
+  background: rgba(59, 130, 246, 0.85);
+  padding: 16rpx 28rpx;
+  border-radius: $radius-button;
+}
+
+.noshowBtn {
+  background: rgba(239, 68, 68, 0.85);
+  padding: 16rpx 28rpx;
+  border-radius: $radius-button;
+}
+
+.restoreBtn {
+  background: rgba(16, 185, 129, 0.9);
+  padding: 12rpx 24rpx;
+  border-radius: $radius-button;
+}
+
+.completeBtn {
+  background: $color-success;
+  padding: 10rpx 24rpx;
+  border-radius: $radius-button;
+  margin-top: 12rpx;
+}
+
+.actionBtnText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
 }
 
 .section {
@@ -337,4 +381,40 @@
 .emptyText {
   font-size: $font-size-sm;
   color: $color-text-tertiary;
+}
+
+.holdList {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.holdItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.holdInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.holdNumber {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+}
+
+.holdName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
 }

@@ -19,7 +19,7 @@ export const allocateStylistAndStation = (ctx: AllocationContext): AllocationRes
   const endTime = calculateEndTime(startTime, totalDuration);
   const serviceCategories = services.map(s => s.category);
 
-  const availableStylists = getAvailableStylistsAtTime(startTime, stylists, appointments, date);
+  const availableStylists = getAvailableStylistsAtTime(startTime, stylists, appointments, date, totalDuration);
 
   if (availableStylists.length === 0) {
     console.warn('[Allocator] 当前时段无可用发型师');

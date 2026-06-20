@@ -5,14 +5,12 @@ import classnames from 'classnames';
 import QueueDisplay from '@/components/QueueDisplay';
 import { useQueueStore } from '@/store/queue';
 import { useStylistStore } from '@/store/stylist';
-import { getOverallLoadStats, calculateStationLoadBalance, crossStationTransfer, dispatchQueueToStations } from '@/utils/loadBalancer';
-import { getStationLoadPercent } from '@/data/mockStations';
-import { getStylistById } from '@/data/mockStylists';
+import { getOverallLoadStats, calculateStationLoadBalance } from '@/utils/loadBalancer';
 import styles from './index.module.scss';
 
 const QueuePage: React.FC = () => {
-  const { queue, currentCalling, servicingItems, callNext, recall, startServicing, getWaitingCount } = useQueueStore();
-  const { stations, stylists } = useStylistStore();
+  const { queue, currentCalling, servicingItems, callNext, recall, startServicing, getWaitingCount, completeServicing } = useQueueStore();
+  const { stations, stylists, executeCrossTransfer } = useStylistStore();
 
   const [showTransferSuggestions] = useState(true);
 
@@ -23,37 +21,32 @@ const QueuePage: React.FC = () => {
 
   const transferSuggestions = useMemo(() => {
     if (!showTransferSuggestions) return [];
-    const suggestions: { from: string; to: string; reason: string; queueNumber?: string }[] = [];
+    const suggestions: { fromId: string; toId: string; from: string; to: string; reason: string; diff: number }[] = [];
 
-    const busyStations = stations
-      .map(s => ({ station: s, load: getStationLoadPercent(s) }))
-      .filter(x => x.load >= 60)
-      .sort((a, b) => b.load - a.load);
-
-    const freeStations = stations
+    const sortedByLoadDesc = [...stations].sort((a, b) =>
+      (b.currentLoad / b.maxDailyLoad) - (a.currentLoad / a.maxDailyLoad);
+    const busyStations = sortedByLoadDesc.filter(s => s.currentLoad / s.maxDailyLoad >= 0.5);
+    const freeStations = [...stations]
       .filter(s => s.status === 'free')
-      .map(s => ({ station: s, load: getStationLoadPercent(s) }))
-      .sort((a, b) => a.load - b.load);
+      .sort((a, b) => (a.currentLoad / a.maxDailyLoad) - (b.currentLoad / b.maxDailyLoad);
 
-    busyStations.forEach(busy => {
-      freeStations.forEach(free => {
-        const result = crossStationTransfer(
-          busy.station,
-          free.station,
-          { id: 'temp', orderNo: '', customerId: '', customerName: '', customerPhone: '', serviceIds: [], totalDuration: 0, totalPrice: 0, appointmentDate: '', startTime: '', endTime: '', stylistId: null, stationId: busy.station.id, status: 'servicing', createTime: '' }
-        );
-        if (result.success) {
-          suggestions.push({
-            from: busy.station.code,
-            to: free.station.code,
-            reason: result.reason,
-            queueNumber: free.station.currentAppointmentId ? undefined : undefined
-          });
-        }
-      });
-    });
+    if (busyStations.length > 0 && freeStations.length > 0) {
+      const busiest = busyStations[0];
+      const idlest = freeStations[0];
+      const diffPct = (busiest.currentLoad / busiest.maxDailyLoad) - (idlest.currentLoad / idlest.maxDailyLoad);
+      if (diffPct >= 0.2) {
+        suggestions.push({
+          fromId: busiest.id,
+          toId: idlest.id,
+          from: busiest.code,
+          to: idlest.code,
+          reason: `${busiest.name}(${Math.round((busiest.currentLoad / busiest.maxDailyLoad) * 100)}% → ${idlest.name}(${Math.round((idlest.currentLoad / idlest.maxDailyLoad) * 100)}%`,
+          diff: Math.round(diffPct * 100)
+        });
+      }
+    }
 
-    return suggestions.slice(0, 3);
+    return suggestions;
   }, [stations, showTransferSuggestions]);
 
   const handleCallNext = () => {
@@ -75,13 +68,32 @@ const QueuePage: React.FC = () => {
     Taro.showToast({ title: `${queueNumber} 开始服务`, icon: 'success' });
   };
 
-  const handleTransfer = (from: string, to: string) => {
+  const handleTransfer = (fromId: string, toId: string, fromCode: string, toCode: string) => {
     Taro.showModal({
       title: '跨工位调剂确认',
-      content: `确认将 ${from} 工位的等待顾客调剂至 ${to} 工位？`,
+      content: `确认将 ${fromCode} 工位的等待顾客调剂至 ${toCode} 工位？`,
+      confirmText: '执行调剂',
       success: (res) => {
         if (res.confirm) {
-          Taro.showToast({ title: '调剂成功', icon: 'success' });
+          const ok = executeCrossTransfer(fromId, toId);
+          if (ok) {
+            Taro.showToast({ title: '调剂成功', icon: 'success' });
+          } else {
+            Taro.showToast({ title: '调剂失败', icon: 'error' });
+          }
+        }
+      }
+    });
+  };
+
+  const handleComplete = (queueNumber: string) => {
+    Taro.showModal({
+      title: '确认完成',
+      content: `确认 ${queueNumber} 服务完成？',
+      success: (res) => {
+        if (res.confirm) {
+          completeServicing(queueNumber);
+          Taro.showToast({ title: '已完成', icon: 'success' });
         }
       }
     });
@@ -181,8 +193,8 @@ const QueuePage: React.FC = () => {
           </View>
           <View className={styles.stationsGrid}>
             {stations.map(station => {
-              const load = getStationLoadPercent(station);
-              const stylist = station.stylistId ? getStylistById(station.stylistId) : undefined;
+              const load = Math.round((station.currentLoad / station.maxDailyLoad) * 100);
+              const stylist = stylists.find(s => s.id === station.stylistId);
               return (
                 <View key={station.id} className={styles.miniStation}>
                   <View className={styles.miniHeader}>
@@ -241,7 +253,7 @@ const QueuePage: React.FC = () => {
                   </View>
                   <View
                     className={styles.transferBtn}
-                    onClick={() => handleTransfer(s.from, s.to)}
+                    onClick={() => handleTransfer(s.fromId, s.toId, s.from, s.to)}
                   >
                     调剂
                   </View>

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { QueueItem } from '@/types';
+import { QueueItem, Station } from '@/types';
+import { useStylistStore } from './stylist';
 
 const mockQueue: QueueItem[] = [
   {
@@ -44,6 +45,11 @@ interface QueueStore {
   getWaitingCount: () => number;
   getMyQueuePosition: (appointmentId: string) => number;
 }
+
+const pickLeastLoadedFreeStation = (): Station | null => {
+  const stylistStore = useStylistStore.getState();
+  return stylistStore.getLeastLoadedFreeStation();
+};
 
 export const useQueueStore = create<QueueStore>((set, get) => ({
   queue: [...mockQueue],
@@ -92,21 +98,33 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     const waiting = queue.filter(q => q.status === 'waiting');
     if (waiting.length === 0) return null;
 
+    const station = pickLeastLoadedFreeStation();
     const next = waiting[0];
-    const called = { ...next, status: 'calling' as const, callCount: next.callCount + 1 };
+    const called: QueueItem = {
+      ...next,
+      status: 'calling',
+      stationId: station?.id,
+      callCount: next.callCount + 1
+    };
 
     set({
       queue: queue.map(q => q.appointmentId === next.appointmentId ? called : q),
       currentCalling: called
     });
-    console.log('[QueueStore] 叫号:', called.queueNumber);
+    console.log('[QueueStore] 叫号:', called.queueNumber, '分配工位:', station?.code || '无空闲');
     return called;
   },
 
   startServicing: (queueNumber, stationId) => {
     const { queue, servicingItems } = get();
-    const item = queue.find(q => q.queueNumber === queueNumber);
+    const item = queue.find(q => q.queueNumber === queueNumber) ||
+      get().currentCalling;
     if (!item) return;
+
+    const stylistStore = useStylistStore.getState();
+    stylistStore.updateStationStatus(stationId, 'busy');
+    stylistStore.incrementStationLoad(stationId);
+    stylistStore.setStationAppointment(stationId, item.appointmentId);
 
     const servicing = { ...item, status: 'servicing' as const, stationId };
     set({
@@ -119,6 +137,12 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
 
   completeServicing: (queueNumber) => {
     const { servicingItems } = get();
+    const item = servicingItems.find(q => q.queueNumber === queueNumber);
+    if (item?.stationId) {
+      const stylistStore = useStylistStore.getState();
+      stylistStore.updateStationStatus(item.stationId, 'free');
+      stylistStore.setStationAppointment(item.stationId, null);
+    }
     set({
       servicingItems: servicingItems.filter(q => q.queueNumber !== queueNumber)
     });
@@ -134,6 +158,10 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
           : q
       )
     });
+    const called = queue.find(q => q.queueNumber === queueNumber);
+    if (called) {
+      set({ currentCalling: { ...called, status: 'calling', callCount: called.callCount + 1 } });
+    }
     console.log('[QueueStore] 重新叫号:', queueNumber);
   },
 

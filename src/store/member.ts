@@ -1,10 +1,13 @@
 import { create } from 'zustand';
 import { Member, RechargeRecord, ConsumeRecord } from '@/types';
-import { mockMember } from '@/data/mockMember';
+import { mockMember, levelConfig } from '@/data/mockMember';
 
 interface MemberStore {
-  member: Member | null;
+  member: Member;
   isLoggedIn: boolean;
+  rechargeRecords: RechargeRecord[];
+  consumeRecords: ConsumeRecord[];
+  levelConfig: typeof levelConfig;
   login: (phone: string) => boolean;
   logout: () => void;
   recharge: (amount: number, gift?: number, payMethod?: RechargeRecord['payMethod']) => boolean;
@@ -17,6 +20,9 @@ interface MemberStore {
 export const useMemberStore = create<MemberStore>((set, get) => ({
   member: { ...mockMember },
   isLoggedIn: true,
+  rechargeRecords: [...mockMember.rechargeRecords],
+  consumeRecords: [...mockMember.consumeRecords],
+  levelConfig,
 
   login: (phone) => {
     if (phone.length >= 11) {
@@ -33,7 +39,7 @@ export const useMemberStore = create<MemberStore>((set, get) => ({
   },
 
   recharge: (amount, gift = 0, payMethod = 'wechat') => {
-    const { member } = get();
+    const { member, rechargeRecords, levelConfig: lvlCfg } = get();
     if (!member) return false;
 
     const record: RechargeRecord = {
@@ -44,20 +50,33 @@ export const useMemberStore = create<MemberStore>((set, get) => ({
       payMethod
     };
 
+    const newTotalRecharge = member.totalRecharge + amount;
+    let newLevel = member.level;
+    for (let i = lvlCfg.length - 1; i >= 0; i--) {
+      if (newTotalRecharge >= lvlCfg[i].threshold) {
+        newLevel = lvlCfg[i].level;
+        break;
+      }
+    }
+    const currentLevelCfg = lvlCfg.find(l => l.level === newLevel);
+
     set({
       member: {
         ...member,
         walletBalance: member.walletBalance + amount + gift,
-        totalRecharge: member.totalRecharge + amount,
+        totalRecharge: newTotalRecharge,
+        level: newLevel,
+        discount: currentLevelCfg?.discount || member.discount,
         rechargeRecords: [record, ...member.rechargeRecords]
-      }
+      },
+      rechargeRecords: [record, ...rechargeRecords]
     });
-    console.log('[MemberStore] 储值:', amount, '赠送:', gift);
+    console.log('[MemberStore] 储值:', amount, '赠送:', gift, '新等级:', newLevel);
     return true;
   },
 
   consume: (amount, description, type = 'service', appointmentId) => {
-    const { member } = get();
+    const { member, consumeRecords, levelConfig: lvlCfg } = get();
     if (!member) return false;
 
     const record: ConsumeRecord = {
@@ -70,15 +89,29 @@ export const useMemberStore = create<MemberStore>((set, get) => ({
       payMethod: 'wallet'
     };
 
+    const newTotalConsume = member.totalConsume + amount;
+    let newLevel = member.level;
+    for (let i = lvlCfg.length - 1; i >= 0; i--) {
+      if (newTotalConsume >= lvlCfg[i].threshold) {
+        newLevel = lvlCfg[i].level;
+        break;
+      }
+    }
+    const currentLevelCfg = lvlCfg.find(l => l.level === newLevel);
+    const addPoints = Math.floor(amount / 10) * (currentLevelCfg?.pointsRate || 1);
+
     set({
       member: {
         ...member,
-        totalConsume: member.totalConsume + amount,
-        points: member.points + Math.floor(amount / 10),
+        totalConsume: newTotalConsume,
+        level: newLevel,
+        discount: currentLevelCfg?.discount || member.discount,
+        points: member.points + addPoints,
         consumeRecords: [record, ...member.consumeRecords]
-      }
+      },
+      consumeRecords: [record, ...consumeRecords]
     });
-    console.log('[MemberStore] 消费:', amount, description);
+    console.log('[MemberStore] 消费:', amount, description, '积分+', addPoints);
     return true;
   },
 

@@ -74,29 +74,28 @@ export const mockMember: Member = {
   ]
 };
 
-export const levelConfig = {
-  bronze: { name: '青铜会员', minRecharge: 0, discount: 0.98, color: '#CD7F32', benefits: ['生日当月88折', '积分兑换礼品'] },
-  silver: { name: '白银会员', minRecharge: 1000, discount: 0.95, color: '#C0C0C0', benefits: ['消费95折', '生日当月85折', '优先预约'] },
-  gold: { name: '黄金会员', minRecharge: 3000, discount: 0.85, color: '#FFD700', benefits: ['消费85折', '生日当月7折', '专属发型师', '免费护理1次/月'] },
-  diamond: { name: '钻石会员', minRecharge: 10000, discount: 0.75, color: '#B9F2FF', benefits: ['消费75折', '生日免费造型', '总监优先服务', '免费护理2次/月', 'VIP专属工位'] }
-};
+export const levelConfig = [
+  { level: 'bronze' as const, name: '青铜会员', threshold: 0, discount: 0.98, pointsRate: 1, color: '#CD7F32', birthdayGift: 50 },
+  { level: 'silver' as const, name: '白银会员', threshold: 1000, discount: 0.95, pointsRate: 1.2, color: '#C0C0C0', birthdayGift: 100 },
+  { level: 'gold' as const, name: '黄金会员', threshold: 3000, discount: 0.85, pointsRate: 1.5, color: '#FFD700', birthdayGift: 200 },
+  { level: 'diamond' as const, name: '钻石会员', threshold: 8000, discount: 0.80, pointsRate: 2, color: '#B9F2FF', birthdayGift: 500 }
+];
 
-export const getNextLevel = (currentLevel: Member['level']): { level: Member['level']; needRecharge: number } | null => {
-  const levels: Member['level'][] = ['bronze', 'silver', 'gold', 'diamond'];
-  const idx = levels.indexOf(currentLevel);
-  if (idx >= levels.length - 1) return null;
-  const nextLevel = levels[idx + 1];
+export const getNextLevel = (currentLevel: Member['level']): { level: Member['level']; threshold: number } | null => {
+  const idx = levelConfig.findIndex(l => l.level === currentLevel);
+  if (idx < 0 || idx >= levelConfig.length - 1) return null;
+  const next = levelConfig[idx + 1];
   return {
-    level: nextLevel,
-    needRecharge: levelConfig[nextLevel].minRecharge
+    level: next.level,
+    threshold: next.threshold
   };
 };
 
 export const rechargePackages = [
-  { amount: 500, gift: 30, popular: false },
-  { amount: 1000, gift: 100, popular: false },
-  { amount: 2000, gift: 250, popular: true },
-  { amount: 3000, gift: 500, popular: false },
-  { amount: 5000, gift: 1000, popular: false },
-  { amount: 10000, gift: 2500, popular: false }
+  { id: 'pkg1', amount: 500, gift: 30, slogan: '新人首充推荐', hot: false },
+  { id: 'pkg2', amount: 1000, gift: 100, slogan: '高性价比之选', hot: false },
+  { id: 'pkg3', amount: 2000, gift: 250, slogan: '老会员最爱', hot: true },
+  { id: 'pkg4', amount: 3000, gift: 500, slogan: '多充多送超值', hot: false },
+  { id: 'pkg5', amount: 5000, gift: 1000, slogan: '升级钻石必备', hot: false },
+  { id: 'pkg6', amount: 10000, gift: 2500, slogan: 'VIP至尊待遇', hot: false }
 ];

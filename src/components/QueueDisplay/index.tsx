@@ -50,7 +50,7 @@ const QueueDisplay: React.FC<QueueDisplayProps> = ({
             </View>
             {callingItem.stationId && (
               <View className={styles.stationHint}>
-                <Text className={styles.stationHintText}>请前往 {callingItem.stationId} 号工位</Text>
+                <Text className={styles.stationHintText}>请前往 {callingItem.stationId.replace('st', '')} 号工位</Text>
               </View>
             )}
             {showActions && onStartService && callingItem.stationId && (

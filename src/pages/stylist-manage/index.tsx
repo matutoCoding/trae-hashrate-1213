@@ -30,7 +30,7 @@ const FILTERS = [
 ];
 
 const StylistManagePage: React.FC = () => {
-  const { stylists, stations } = useStylistStore();
+  const { stylists, stations, updateStylist, addStylist, bindStylistToStation, unbindStylistStation, updateStylistStatus } = useStylistStore();
   const [activeFilter, setActiveFilter] = useState<string>('all');
 
   const stats = useMemo(() => ({
@@ -51,18 +51,152 @@ const StylistManagePage: React.FC = () => {
 
   const loadPercent = (load: number) => Math.min(100, Math.round((load / 12) * 100));
 
-  const handleStylistClick = (stylist: Stylist) => {
+  const promptForInput = (title: string, defaultVal: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      Taro.showModal({
+        title,
+        editable: true,
+        placeholderText: defaultVal,
+        content: defaultVal,
+        success: (res) => {
+          if (res.confirm && res.content) resolve(res.content);
+          else resolve(null);
+        }
+      });
+    });
+  };
+
+  const handleAdjustSchedule = async (stylist: Stylist) => {
+    const startTime = await promptForInput('设置上班时间 (HH:MM)', stylist.workSchedule.startTime);
+    if (startTime === null) return;
+    const endTime = await promptForInput('设置下班时间 (HH:MM)', stylist.workSchedule.endTime);
+    if (endTime === null) return;
+    const breakStart = await promptForInput('设置午休开始 (HH:MM)', stylist.workSchedule.breakStart);
+    if (breakStart === null) return;
+    const breakEnd = await promptForInput('设置午休结束 (HH:MM)', stylist.workSchedule.breakEnd);
+    if (breakEnd === null) return;
+
+    updateStylist(stylist.id, {
+      workSchedule: {
+        ...stylist.workSchedule,
+        startTime, endTime, breakStart, breakEnd
+      }
+    });
+    Taro.showToast({ title: '排班已更新', icon: 'success' });
+  };
+
+  const handleChangeStation = (stylist: Stylist) => {
+    const freeStations = stations.filter(s => !s.stylistId && s.status !== 'maintain');
+    const items = freeStations.map(s => `${s.code} ${s.name}`);
+    if (stylist.stationId) items.unshift('解绑当前工位');
+    items.unshift('取消操作');
+
     Taro.showActionSheet({
-      itemList: ['查看详情', '调整排班', '修改工位', '调整状态'],
+      itemList: items,
       success: (res) => {
-        const actions = ['查看详情', '调整排班', '修改工位', '调整状态'];
-        Taro.showToast({ title: `${actions[res.tapIndex]}：${stylist.name}`, icon: 'none' });
+        if (res.tapIndex === 0) return;
+        if (stylist.stationId && res.tapIndex === 1) {
+          unbindStylistStation(stylist.id);
+          Taro.showToast({ title: '已解绑工位', icon: 'success' });
+          return;
+        }
+        const offset = stylist.stationId ? 2 : 1;
+        const chosen = freeStations[res.tapIndex - offset];
+        if (chosen) {
+          if (stylist.stationId) unbindStylistStation(stylist.id);
+          bindStylistToStation(stylist.id, chosen.id);
+          Taro.showToast({ title: `已分配到${chosen.name}`, icon: 'success' });
+        }
       }
     });
   };
 
-  const handleAddStylist = () => {
-    Taro.showToast({ title: '新增发型师功能开发中', icon: 'none' });
+  const handleChangeStatus = (stylist: Stylist) => {
+    const statusList: Stylist['status'][] = ['onDuty', 'break', 'offDuty', 'leave'];
+    const items = statusList.map(s => statusMap[s].text);
+    Taro.showActionSheet({
+      itemList: items,
+      success: (res) => {
+        const newStatus = statusList[res.tapIndex];
+        updateStylistStatus(stylist.id, newStatus);
+        Taro.showToast({ title: `状态已改为${statusMap[newStatus].text}`, icon: 'success' });
+      }
+    });
+  };
+
+  const handleStylistClick = (stylist: Stylist) => {
+    Taro.showActionSheet({
+      itemList: ['查看详情', '调整排班', '修改工位', '调整状态'],
+      success: (res) => {
+        switch (res.tapIndex) {
+          case 0:
+            Taro.showModal({
+              title: stylist.name,
+              content: `${stylist.title}\n评分: ${stylist.rating}\n技能: ${stylist.skills.join('、')}`,
+              showCancel: false
+            });
+            break;
+          case 1:
+            handleAdjustSchedule(stylist);
+            break;
+          case 2:
+            handleChangeStation(stylist);
+            break;
+          case 3:
+            handleChangeStatus(stylist);
+            break;
+        }
+      }
+    });
+  };
+
+  const handleAddStylist = async () => {
+    const name = await promptForInput('请输入发型师姓名', '例如：张小明');
+    if (!name) return;
+
+    const levelList: Stylist['level'][] = ['junior', 'senior', 'expert', 'director'];
+    const levelItems = levelList.map(l => levelMap[l].text);
+    Taro.showActionSheet({
+      itemList: levelItems,
+      success: async (levelRes) => {
+        const level = levelList[levelRes.tapIndex];
+        const title = levelMap[level].text + '发型师';
+
+        const skillStr = await promptForInput('请输入擅长技能（逗号分隔）', '剪发,造型');
+        if (skillStr === null) return;
+        const skills = skillStr.split(/[,，]/).map(s => s.trim()).filter(Boolean);
+
+        const statusList: Stylist['status'][] = ['onDuty', 'break', 'offDuty', 'leave'];
+        const statusItems = statusList.map(s => statusMap[s].text);
+        Taro.showActionSheet({
+          itemList: statusItems,
+          success: (statusRes) => {
+            const newStylist: Stylist = {
+              id: `st${Date.now()}`,
+              name,
+              avatar: `https://picsum.photos/seed/${name}/200/200`,
+              title,
+              level,
+              skills,
+              rating: 4.8,
+              todayLoad: 0,
+              weekLoad: 0,
+              stationId: null,
+              status: statusList[statusRes.tapIndex],
+              workSchedule: {
+                workDays: [1, 2, 3, 4, 5, 6],
+                startTime: '09:00',
+                endTime: '21:00',
+                breakStart: '12:00',
+                breakEnd: '13:00'
+              }
+            };
+            addStylist(newStylist);
+            Taro.showToast({ title: `已新增：${name}`, icon: 'success' });
+          }
+        });
+      }
+    });
   };
 
   const renderStars = (rating: number) => {

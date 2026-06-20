@@ -15,6 +15,7 @@ interface StylistStore {
   incrementStationLoad: (stationId: string) => void;
   decrementStationLoad: (stationId: string) => void;
   setStationAppointment: (stationId: string, appointmentId: string | null) => void;
+  setStationCalling: (stationId: string, appointmentId: string | null) => void;
   executeCrossTransfer: (fromStationId: string, toStationId: string) => boolean;
   getLeastLoadedFreeStation: () => Station | null;
   getAvailableStylists: () => Stylist[];
@@ -107,41 +108,70 @@ export const useStylistStore = create<StylistStore>((set, get) => ({
     });
   },
 
+  setStationCalling: (stationId, appointmentId) => {
+    const { stations } = get();
+    set({
+      stations: stations.map(s =>
+        s.id === stationId ? { ...s, callingAppointmentId: appointmentId } : s
+      )
+    });
+    console.log('[StylistStore] 设置叫号占用:', stationId, appointmentId || '释放');
+  },
+
   executeCrossTransfer: (fromStationId, toStationId) => {
     const { stations } = get();
     const from = stations.find(s => s.id === fromStationId);
     const to = stations.find(s => s.id === toStationId);
-    if (!from || !to || from.currentLoad < 1 || to.status !== 'free') return false;
+    if (!from || !to) return false;
 
-    const movingAptId = from.currentAppointmentId;
-    set({
-      stations: stations.map(s => {
-        if (s.id === fromStationId) {
-          return {
-            ...s,
-            currentLoad: Math.max(0, s.currentLoad - 1),
-            currentAppointmentId: null,
-            status: s.currentLoad - 1 > 0 ? 'busy' : 'free' as Station['status']
-          };
-        }
-        if (s.id === toStationId) {
-          return {
-            ...s,
-            currentLoad: Math.min(s.maxDailyLoad, s.currentLoad + 1),
-            currentAppointmentId: movingAptId,
-            status: 'busy' as Station['status']
-          };
-        }
-        return s;
-      })
-    });
+    let movingAptId = from.currentAppointmentId;
+    let fromLoadAfter = from.currentLoad - 1;
+    let toLoadAfter = to.currentLoad + 1;
+
+    if (!movingAptId && from.callingAppointmentId) {
+      movingAptId = from.callingAppointmentId;
+      fromLoadAfter = from.currentLoad;
+      toLoadAfter = to.currentLoad;
+    }
+
+    if (!movingAptId || from.currentLoad < 1) return false;
+    if (to.status !== 'free' || to.callingAppointmentId) return false;
+
+    try {
+      const { useQueueStore } = require('./queue');
+      useQueueStore.getState().updateServicingStation(movingAptId, toStationId);
+    } catch (e) {
+      set({
+        stations: stations.map(s => {
+          if (s.id === fromStationId) {
+            return {
+              ...s,
+              currentLoad: Math.max(0, fromLoadAfter),
+              currentAppointmentId: null,
+              callingAppointmentId: null,
+              status: fromLoadAfter > 0 ? 'busy' : 'free' as Station['status']
+            };
+          }
+          if (s.id === toStationId) {
+            return {
+              ...s,
+              currentLoad: Math.min(s.maxDailyLoad, toLoadAfter),
+              currentAppointmentId: movingAptId,
+              status: 'busy' as Station['status']
+            };
+          }
+          return s;
+        })
+      });
+    }
+
     console.log('[StylistStore] 跨工位调剂:', fromStationId, '→', toStationId);
     return true;
   },
 
   getLeastLoadedFreeStation: () => {
     const { stations } = get();
-    const free = stations.filter(s => s.status === 'free');
+    const free = stations.filter(s => s.status === 'free' && !s.callingAppointmentId);
     if (free.length === 0) return null;
     return free.reduce((least, s) => {
       const leastPct = least.currentLoad / least.maxDailyLoad;

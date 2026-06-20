@@ -42,6 +42,8 @@ interface QueueStore {
   startServicing: (queueNumber: string, stationId: string) => void;
   completeServicing: (queueNumber: string) => void;
   recall: (queueNumber: string) => void;
+  cancelCalling: () => void;
+  updateServicingStation: (appointmentId: string, newStationId: string) => boolean;
   getWaitingCount: () => number;
   getMyQueuePosition: (appointmentId: string) => number;
 }
@@ -94,12 +96,23 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   },
 
   callNext: () => {
-    const { queue } = get();
+    const { queue, currentCalling } = get();
+    const stylistStore = useStylistStore.getState();
+
+    if (currentCalling?.stationId) {
+      stylistStore.setStationCalling(currentCalling.stationId, null);
+    }
+
     const waiting = queue.filter(q => q.status === 'waiting');
     if (waiting.length === 0) return null;
 
-    const station = pickLeastLoadedFreeStation();
+    const station = stylistStore.getLeastLoadedFreeStation();
     const next = waiting[0];
+
+    if (station) {
+      stylistStore.setStationCalling(station.id, next.appointmentId);
+    }
+
     const called: QueueItem = {
       ...next,
       status: 'calling',
@@ -122,6 +135,7 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     if (!item) return;
 
     const stylistStore = useStylistStore.getState();
+    stylistStore.setStationCalling(stationId, null);
     stylistStore.updateStationStatus(stationId, 'busy');
     stylistStore.incrementStationLoad(stationId);
     stylistStore.setStationAppointment(stationId, item.appointmentId);
@@ -142,6 +156,7 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
       const stylistStore = useStylistStore.getState();
       stylistStore.updateStationStatus(item.stationId, 'free');
       stylistStore.setStationAppointment(item.stationId, null);
+      stylistStore.decrementStationLoad(item.stationId);
     }
     set({
       servicingItems: servicingItems.filter(q => q.queueNumber !== queueNumber)
@@ -150,19 +165,73 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   },
 
   recall: (queueNumber) => {
-    const { queue } = get();
+    const { queue, currentCalling } = get();
+    const stylistStore = useStylistStore.getState();
+
+    if (currentCalling?.stationId && currentCalling.queueNumber !== queueNumber) {
+      stylistStore.setStationCalling(currentCalling.stationId, null);
+    }
+
+    const item = queue.find(q => q.queueNumber === queueNumber);
+    if (!item) return;
+
+    let station = item.stationId;
+    if (!station) {
+      const freeStation = stylistStore.getLeastLoadedFreeStation();
+      if (freeStation) {
+        station = freeStation.id;
+        stylistStore.setStationCalling(freeStation.id, item.appointmentId);
+      }
+    }
+
+    const recalled = { ...item, status: 'calling' as const, stationId: station, callCount: item.callCount + 1 };
     set({
-      queue: queue.map(q =>
-        q.queueNumber === queueNumber
-          ? { ...q, callCount: q.callCount + 1, status: 'calling' as const }
-          : q
+      queue: queue.map(q => q.queueNumber === queueNumber ? recalled : q),
+      currentCalling: recalled
+    });
+    console.log('[QueueStore] 重新叫号:', queueNumber, station);
+  },
+
+  cancelCalling: () => {
+    const { currentCalling, queue } = get();
+    if (!currentCalling) return;
+
+    const stylistStore = useStylistStore.getState();
+    if (currentCalling.stationId) {
+      stylistStore.setStationCalling(currentCalling.stationId, null);
+    }
+
+    const reverted = { ...currentCalling, status: 'waiting' as const };
+    set({
+      queue: queue.map(q => q.appointmentId === currentCalling.appointmentId ? reverted : q),
+      currentCalling: null
+    });
+    console.log('[QueueStore] 取消叫号:', currentCalling.queueNumber);
+  },
+
+  updateServicingStation: (appointmentId, newStationId) => {
+    const { servicingItems } = get();
+    const item = servicingItems.find(q => q.appointmentId === appointmentId);
+    if (!item || !item.stationId) return false;
+
+    const stylistStore = useStylistStore.getState();
+    const oldStationId = item.stationId;
+
+    stylistStore.setStationAppointment(oldStationId, null);
+    stylistStore.decrementStationLoad(oldStationId);
+    stylistStore.updateStationStatus(oldStationId, 'free');
+
+    stylistStore.setStationAppointment(newStationId, appointmentId);
+    stylistStore.incrementStationLoad(newStationId);
+    stylistStore.updateStationStatus(newStationId, 'busy');
+
+    set({
+      servicingItems: servicingItems.map(q =>
+        q.appointmentId === appointmentId ? { ...q, stationId: newStationId } : q
       )
     });
-    const called = queue.find(q => q.queueNumber === queueNumber);
-    if (called) {
-      set({ currentCalling: { ...called, status: 'calling', callCount: called.callCount + 1 } });
-    }
-    console.log('[QueueStore] 重新叫号:', queueNumber);
+    console.log('[QueueStore] 调剂工位:', appointmentId, oldStationId, '→', newStationId);
+    return true;
   },
 
   getWaitingCount: () => {

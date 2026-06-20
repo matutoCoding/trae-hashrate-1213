@@ -37,13 +37,13 @@ const HomePage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string>('hot');
   const [dates] = useState(generateNextNDates(10));
 
-  const timeSlots: TimeSlot[] = useMemo(() => {
-    return generateTimeSlots(selectedDate, stylists, appointments);
-  }, [selectedDate, stylists, appointments]);
-
   const totalDuration = useMemo(() => {
     return selectedServices.reduce((sum, s) => sum + s.duration, 0);
   }, [selectedServices]);
+
+  const timeSlots: TimeSlot[] = useMemo(() => {
+    return generateTimeSlots(selectedDate, stylists, appointments, Math.max(30, totalDuration));
+  }, [selectedDate, stylists, appointments, totalDuration]);
 
   const totalPrice = useMemo(() => {
     return selectedServices.reduce((sum, s) => sum + s.price, 0);

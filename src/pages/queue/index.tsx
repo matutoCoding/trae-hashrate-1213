@@ -9,8 +9,8 @@ import { getOverallLoadStats, calculateStationLoadBalance } from '@/utils/loadBa
 import styles from './index.module.scss';
 
 const QueuePage: React.FC = () => {
-  const { queue, currentCalling, servicingItems, callNext, recall, startServicing, getWaitingCount, completeServicing } = useQueueStore();
-  const { stations, stylists, executeCrossTransfer } = useStylistStore();
+  const { queue, currentCalling, servicingItems, callNext, recall, startServicing, getWaitingCount, completeServicing, updateServicingStation } = useQueueStore();
+  const { stations, stylists } = useStylistStore();
 
   const [showTransferSuggestions] = useState(true);
 
@@ -21,27 +21,37 @@ const QueuePage: React.FC = () => {
 
   const transferSuggestions = useMemo(() => {
     if (!showTransferSuggestions) return [];
-    const suggestions: { fromId: string; toId: string; from: string; to: string; reason: string; diff: number }[] = [];
+    const suggestions: {
+      fromId: string; toId: string; from: string; to: string;
+      fromName: string; toName: string; diff: number;
+      appointmentId: string | null;
+    }[] = [];
 
-    const sortedByLoadDesc = [...stations].sort((a, b) =>
-      (b.currentLoad / b.maxDailyLoad) - (a.currentLoad / a.maxDailyLoad);
-    const busyStations = sortedByLoadDesc.filter(s => s.currentLoad / s.maxDailyLoad >= 0.5);
-    const freeStations = [...stations]
-      .filter(s => s.status === 'free')
-      .sort((a, b) => (a.currentLoad / a.maxDailyLoad) - (b.currentLoad / b.maxDailyLoad);
+    const busyWithApt = stations
+      .filter(s => s.status === 'busy' && s.currentAppointmentId)
+      .sort((a, b) => (b.currentLoad / b.maxDailyLoad) - (a.currentLoad / a.maxDailyLoad));
 
-    if (busyStations.length > 0 && freeStations.length > 0) {
-      const busiest = busyStations[0];
-      const idlest = freeStations[0];
-      const diffPct = (busiest.currentLoad / busiest.maxDailyLoad) - (idlest.currentLoad / idlest.maxDailyLoad);
+    const freeIdle = stations
+      .filter(s => s.status === 'free' && !s.callingAppointmentId)
+      .sort((a, b) => (a.currentLoad / a.maxDailyLoad) - (b.currentLoad / b.maxDailyLoad));
+
+    if (busyWithApt.length > 0 && freeIdle.length > 0) {
+      const busiest = busyWithApt[0];
+      const idlest = freeIdle[0];
+      const busyPct = busiest.currentLoad / busiest.maxDailyLoad;
+      const idlePct = idlest.currentLoad / idlest.maxDailyLoad;
+      const diffPct = busyPct - idlePct;
+
       if (diffPct >= 0.2) {
         suggestions.push({
           fromId: busiest.id,
           toId: idlest.id,
           from: busiest.code,
           to: idlest.code,
-          reason: `${busiest.name}(${Math.round((busiest.currentLoad / busiest.maxDailyLoad) * 100)}% → ${idlest.name}(${Math.round((idlest.currentLoad / idlest.maxDailyLoad) * 100)}%`,
-          diff: Math.round(diffPct * 100)
+          fromName: busiest.name,
+          toName: idlest.name,
+          diff: Math.round(diffPct * 100),
+          appointmentId: busiest.currentAppointmentId
         });
       }
     }
@@ -68,14 +78,18 @@ const QueuePage: React.FC = () => {
     Taro.showToast({ title: `${queueNumber} 开始服务`, icon: 'success' });
   };
 
-  const handleTransfer = (fromId: string, toId: string, fromCode: string, toCode: string) => {
+  const handleTransfer = (appointmentId: string | null, fromId: string, toId: string, fromCode: string, toCode: string) => {
+    if (!appointmentId) {
+      Taro.showToast({ title: '没有可调剂的顾客', icon: 'none' });
+      return;
+    }
     Taro.showModal({
       title: '跨工位调剂确认',
-      content: `确认将 ${fromCode} 工位的等待顾客调剂至 ${toCode} 工位？`,
+      content: `确认将 ${fromCode} 工位的服务顾客调剂至 ${toCode} 工位？\n（负载差超过20%，建议均衡）`,
       confirmText: '执行调剂',
       success: (res) => {
         if (res.confirm) {
-          const ok = executeCrossTransfer(fromId, toId);
+          const ok = updateServicingStation(appointmentId, toId);
           if (ok) {
             Taro.showToast({ title: '调剂成功', icon: 'success' });
           } else {
@@ -89,7 +103,7 @@ const QueuePage: React.FC = () => {
   const handleComplete = (queueNumber: string) => {
     Taro.showModal({
       title: '确认完成',
-      content: `确认 ${queueNumber} 服务完成？',
+      content: `确认 ${queueNumber} 服务完成？`,
       success: (res) => {
         if (res.confirm) {
           completeServicing(queueNumber);
@@ -244,16 +258,16 @@ const QueuePage: React.FC = () => {
                 <View key={idx} className={styles.transferItem}>
                   <View className={styles.transferFrom}>
                     <View className={styles.transferCode}>{s.from}</View>
-                    <Text style={{ fontSize: 24, color: '#6B7280' }}>工位</Text>
+                    <Text style={{ fontSize: 22, color: '#6B7280' }}>{s.fromName}</Text>
                   </View>
                   <Text className={styles.transferArrow}>→</Text>
                   <View className={styles.transferFrom}>
                     <View className={styles.transferCode} style={{ background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)' }}>{s.to}</View>
-                    <Text style={{ fontSize: 24, color: '#6B7280' }}>工位</Text>
+                    <Text style={{ fontSize: 22, color: '#6B7280' }}>{s.toName}</Text>
                   </View>
                   <View
                     className={styles.transferBtn}
-                    onClick={() => handleTransfer(s.fromId, s.toId, s.from, s.to)}
+                    onClick={() => handleTransfer(s.appointmentId, s.fromId, s.toId, s.from, s.to)}
                   >
                     调剂
                   </View>

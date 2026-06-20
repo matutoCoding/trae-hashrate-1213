@@ -42,6 +42,7 @@ export interface Station {
   maxDailyLoad: number;
   stylistId: string | null;
   currentAppointmentId: string | null;
+  callingAppointmentId?: string | null;
 }
 
 export interface Appointment {

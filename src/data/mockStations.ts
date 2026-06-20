@@ -19,7 +19,8 @@ export const mockStations: Station[] = [
     currentLoad: 2,
     maxDailyLoad: 12,
     stylistId: 's002',
-    currentAppointmentId: null
+    currentAppointmentId: null,
+    callingAppointmentId: 'ap007'
   },
   {
     id: 'st03',

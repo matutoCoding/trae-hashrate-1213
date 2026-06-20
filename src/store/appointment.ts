@@ -1,7 +1,10 @@
 import { create } from 'zustand';
 import { Appointment, Service, Stylist, Station, TimeSlot } from '@/types';
 import { mockAppointments } from '@/data/mockAppointments';
+import { mockServices } from '@/data/mockServices';
 import { generateTimeSlots } from '@/utils/timeSlot';
+
+type TimePeriod = 'morning' | 'afternoon' | 'evening';
 
 interface AppointmentStore {
   appointments: Appointment[];
@@ -14,15 +17,37 @@ interface AppointmentStore {
   setSelectedTime: (time: string | null) => void;
   addAppointment: (apt: Appointment) => void;
   updateAppointmentStatus: (id: string, status: Appointment['status']) => void;
+  updateAppointmentStation: (id: string, stationId: string | null, stylistId?: string | null) => void;
   getCustomerAppointments: (customerId: string) => Appointment[];
+  getTodayAppointments: () => Appointment[];
   resetSelection: () => void;
   validateSelectedTime: (stylists: Stylist[], stations: Station[]) => boolean;
+  getServiceNames: (serviceIds: string[]) => string[];
+  getStatsByStylist: () => Record<string, {
+    total: number; waiting: number; calling: number; servicing: number;
+    completed: number; noShow: number; cancelled: number; revenue: number;
+  }>;
+  getStatsByStation: () => Record<string, {
+    total: number; waiting: number; calling: number; servicing: number;
+    completed: number; noShow: number; cancelled: number; revenue: number;
+  }>;
+  getStatsByPeriod: () => Record<TimePeriod, {
+    appointments: number; completed: number; revenue: number;
+  }>;
+  getTimePeriod: (startTime: string) => TimePeriod;
+  getAppointmentsByStation: (stationId: string) => Appointment[];
+  getAppointmentsByStylist: (stylistId: string) => Appointment[];
 }
+
+const getServiceNameById = (id: string): string => {
+  const s = mockServices.find(sv => sv.id === id);
+  return s ? s.name : '未知服务';
+};
 
 export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
   appointments: [...mockAppointments],
   selectedServices: [],
-  selectedDate: new Date().toISOString().split('T')[0],
+  selectedDate: '2026-06-21',
   selectedTime: null,
 
   setSelectedServices: (services) => set({ selectedServices: services }),
@@ -72,8 +97,25 @@ export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
     console.log('[AppointmentStore] 更新状态:', id, status);
   },
 
+  updateAppointmentStation: (id, stationId, stylistId) => {
+    const { appointments } = get();
+    set({
+      appointments: appointments.map(a => {
+        if (a.id !== id) return a;
+        const updated: Appointment = { ...a, stationId };
+        if (stylistId !== undefined) updated.stylistId = stylistId;
+        return updated;
+      })
+    });
+    console.log('[AppointmentStore] 更新工位:', id, '→', stationId);
+  },
+
   getCustomerAppointments: (customerId) => {
     return get().appointments.filter(a => a.customerId === customerId);
+  },
+
+  getTodayAppointments: () => {
+    return get().appointments.filter(a => a.appointmentDate === '2026-06-21');
   },
 
   validateSelectedTime: (stylists, stations) => {
@@ -86,6 +128,99 @@ export const useAppointmentStore = create<AppointmentStore>((set, get) => ({
       console.log('[AppointmentStore] 校验失败：当前时间已不可用', selectedTime);
     }
     return ok;
+  },
+
+  getServiceNames: (serviceIds) => {
+    return serviceIds.map(id => getServiceNameById(id));
+  },
+
+  getStatsByStylist: () => {
+    const today = get().getTodayAppointments();
+    const stats: Record<string, any> = {};
+
+    today.forEach(a => {
+      const sid = a.stylistId || 'unassigned';
+      if (!stats[sid]) {
+        stats[sid] = {
+          total: 0, waiting: 0, calling: 0, servicing: 0,
+          completed: 0, noShow: 0, cancelled: 0, revenue: 0
+        };
+      }
+      stats[sid].total++;
+      const status = a.status;
+      if (status === 'pending' || status === 'confirmed' || status === 'arrived') stats[sid].waiting++;
+      if (status === 'servicing') stats[sid].servicing++;
+      if (status === 'completed') {
+        stats[sid].completed++;
+        stats[sid].revenue += a.discountPrice || a.totalPrice;
+      }
+      if (status === 'noShow') stats[sid].noShow++;
+      if (status === 'cancelled') stats[sid].cancelled++;
+    });
+
+    return stats;
+  },
+
+  getStatsByStation: () => {
+    const today = get().getTodayAppointments();
+    const stats: Record<string, any> = {};
+
+    today.forEach(a => {
+      const sid = a.stationId || 'unassigned';
+      if (!stats[sid]) {
+        stats[sid] = {
+          total: 0, waiting: 0, calling: 0, servicing: 0,
+          completed: 0, noShow: 0, cancelled: 0, revenue: 0
+        };
+      }
+      stats[sid].total++;
+      const status = a.status;
+      if (status === 'pending' || status === 'confirmed' || status === 'arrived') stats[sid].waiting++;
+      if (status === 'servicing') stats[sid].servicing++;
+      if (status === 'completed') {
+        stats[sid].completed++;
+        stats[sid].revenue += a.discountPrice || a.totalPrice;
+      }
+      if (status === 'noShow') stats[sid].noShow++;
+      if (status === 'cancelled') stats[sid].cancelled++;
+    });
+
+    return stats;
+  },
+
+  getTimePeriod: (startTime) => {
+    const hour = parseInt(startTime.split(':')[0], 10);
+    if (hour < 12) return 'morning';
+    if (hour < 18) return 'afternoon';
+    return 'evening';
+  },
+
+  getStatsByPeriod: () => {
+    const today = get().getTodayAppointments();
+    const periods: Record<TimePeriod, any> = {
+      morning: { appointments: 0, completed: 0, revenue: 0 },
+      afternoon: { appointments: 0, completed: 0, revenue: 0 },
+      evening: { appointments: 0, completed: 0, revenue: 0 }
+    };
+
+    today.forEach(a => {
+      const p = get().getTimePeriod(a.startTime);
+      periods[p].appointments++;
+      if (a.status === 'completed') {
+        periods[p].completed++;
+        periods[p].revenue += a.discountPrice || a.totalPrice;
+      }
+    });
+
+    return periods;
+  },
+
+  getAppointmentsByStation: (stationId) => {
+    return get().getTodayAppointments().filter(a => a.stationId === stationId);
+  },
+
+  getAppointmentsByStylist: (stylistId) => {
+    return get().getTodayAppointments().filter(a => a.stylistId === stylistId);
   },
 
   resetSelection: () => {

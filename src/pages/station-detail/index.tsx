@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
-import { useQueueStore } from '@/store/queue';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import { useStylistStore } from '@/store/stylist';
 import { useAppointmentStore } from '@/store/appointment';
+import { useQueueStore } from '@/store/queue';
+import { getStatusText, getStatusColor } from '@/data/mockAppointments';
 import styles from './index.module.scss';
 
 const StationDetailPage: React.FC = () => {
@@ -11,82 +12,25 @@ const StationDetailPage: React.FC = () => {
   const stationId = router.params.id as string;
 
   const { stations, stylists } = useStylistStore();
-  const { queue, servicingItems, holdItems, currentCalling, completeServicing, getTodayStatsByStation } = useQueueStore();
-  const { appointments } = useAppointmentStore();
+  const { getAppointmentsByStation, getServiceNames, getStatsByStation, getStatsByPeriod } = useAppointmentStore();
+  const { completeServicing, servicingItems, currentCalling } = useQueueStore();
 
   const station = useMemo(() => stations.find(s => s.id === stationId), [stations, stationId]);
   const stylist = useMemo(() => station ? stylists.find(s => s.id === station.stylistId) : undefined, [station, stylists]);
-  const stationStats = useMemo(() => getTodayStatsByStation(), [stations, queue, servicingItems]);
-  const stats = station ? (stationStats[station.id] || { waiting: 0, calling: 0, servicing: 0, completed: 0, noShow: 0 }) : null;
+  const apts = useMemo(() => getAppointmentsByStation(stationId), [stationId, getAppointmentsByStation]);
+  const stats = useMemo(() => getStatsByStation()[stationId] || {
+    total: 0, waiting: 0, calling: 0, servicing: 0,
+    completed: 0, noShow: 0, cancelled: 0, revenue: 0
+  }, [stationId, getStatsByStation]);
 
-  const todayItems = useMemo(() => {
-    if (!station) return [];
-    const items: Array<{
-      type: 'servicing' | 'calling' | 'waiting' | 'hold' | 'completed' | 'noShow';
-      aptId: string;
-      queueNumber: string;
-      customerName: string;
-      services: string[];
-      time?: string;
-    }> = [];
+  const loadPercent = station ? Math.round((station.currentLoad / station.maxDailyLoad) * 100) : 0;
 
-    servicingItems.forEach(q => {
-      if (q.stationId === stationId) {
-        items.push({ type: 'servicing', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-      }
-    });
-    queue.forEach(q => {
-      if (q.stationId === stationId) {
-        if (q.status === 'calling') items.push({ type: 'calling', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-        if (q.status === 'waiting') items.push({ type: 'waiting', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-        if (q.status === 'completed') items.push({ type: 'completed', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-        if (q.status === 'noShow') items.push({ type: 'noShow', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-      }
-    });
-    if (currentCalling?.stationId === stationId && !items.find(i => i.aptId === currentCalling.appointmentId)) {
-      items.push({ type: 'calling', aptId: currentCalling.appointmentId, queueNumber: currentCalling.queueNumber, customerName: currentCalling.customerName, services: currentCalling.serviceNames });
-    }
-    holdItems.forEach(q => {
-      if (q.stationId === stationId && !items.find(i => i.aptId === q.appointmentId)) {
-        items.push({ type: 'hold', aptId: q.appointmentId, queueNumber: q.queueNumber, customerName: q.customerName, services: q.serviceNames });
-      }
-    });
-
-    appointments.forEach(a => {
-      if (a.stationId === stationId) {
-        if (!items.find(i => i.aptId === a.id)) {
-          const svcNames = a.serviceIds.map(id => '服务').filter(Boolean);
-          items.push({
-            type: a.status === 'completed' ? 'completed' : (a.status === 'noShow' ? 'noShow' : 'waiting'),
-            aptId: a.id,
-            queueNumber: a.queueNumber || a.orderNo.slice(-4),
-            customerName: a.customerName,
-            services: svcNames.length ? svcNames : ['预约服务'],
-            time: `${a.startTime}-${a.endTime}`
-          });
-        }
-      }
-    });
-
-    return items;
-  }, [station, stationId, servicingItems, queue, holdItems, currentCalling, appointments]);
-
-  if (!station) {
-    return (
-      <View className={styles.page}>
-        <Text className={styles.empty}>工位不存在</Text>
-      </View>
-    );
-  }
-
-  const loadPercent = Math.round((station.currentLoad / station.maxDailyLoad) * 100);
-  const typeMap: Record<string, { label: string; color: string; bg: string }> = {
-    servicing: { label: '服务中', color: '#F59E0B', bg: 'rgba(245,158,11,0.08)' },
-    calling: { label: '叫号中', color: '#8B5CF6', bg: 'rgba(139,92,246,0.08)' },
-    waiting: { label: '等待中', color: '#3B82F6', bg: 'rgba(59,130,246,0.08)' },
-    hold: { label: '暂不服务', color: '#6366F1', bg: 'rgba(99,102,241,0.08)' },
-    completed: { label: '已完成', color: '#10B981', bg: 'rgba(16,185,129,0.08)' },
-    noShow: { label: '未到店', color: '#EF4444', bg: 'rgba(239,68,68,0.08)' }
+  const getLoadLevel = (load: number, max: number) => {
+    const pct = load / max;
+    if (pct < 0.3) return { text: '空闲', color: '#10B981' };
+    if (pct < 0.6) return { text: '正常', color: '#3B82F6' };
+    if (pct < 0.8) return { text: '较忙', color: '#F59E0B' };
+    return { text: '繁忙', color: '#EF4444' };
   };
 
   const handleComplete = (queueNumber: string) => {
@@ -102,6 +46,38 @@ const StationDetailPage: React.FC = () => {
     });
   };
 
+  const getQueueNumberForApt = (apt: any) => {
+    const svc = servicingItems.find(q => q.appointmentId === apt.id);
+    if (svc) return svc.queueNumber;
+    if (currentCalling?.appointmentId === apt.id) return currentCalling.queueNumber;
+    return apt.queueNumber || apt.orderNo.slice(-4);
+  };
+
+  const getDisplayStatus = (apt: any) => {
+    if (currentCalling?.appointmentId === apt.id) return '叫号中';
+    const svc = servicingItems.find(q => q.appointmentId === apt.id);
+    if (svc) return '服务中';
+    return getStatusText(apt.status);
+  };
+
+  const getDisplayStatusColor = (apt: any) => {
+    if (currentCalling?.appointmentId === apt.id) return '#8B5CF6';
+    const svc = servicingItems.find(q => q.appointmentId === apt.id);
+    if (svc) return '#F59E0B';
+    return getStatusColor(apt.status);
+  };
+
+  if (!station) {
+    return (
+      <View className={styles.page}>
+        <Text className={styles.empty}>工位不存在</Text>
+      </View>
+    );
+  }
+
+  const level = getLoadLevel(station.currentLoad, station.maxDailyLoad);
+  const sortedApts = [...apts].sort((a, b) => a.startTime.localeCompare(b.startTime));
+
   return (
     <ScrollView className={styles.page} scrollY>
       <View className="pageContainer">
@@ -110,15 +86,18 @@ const StationDetailPage: React.FC = () => {
             <View className={styles.codeBox}>{station.code}</View>
             <View className={styles.headerInfo}>
               <Text className={styles.stationName}>{station.name}</Text>
-              <Text className={styles.stationStylist}>{stylist ? `${stylist.name} · ${stylist.title}` : '未分配发型师'}</Text>
+              <Text className={styles.stationStylist}>
+                {stylist ? `${stylist.name} · ${stylist.title}` : '未分配发型师'}
+              </Text>
             </View>
-            <View className={styles.statusTag} style={{
-              color: station.status === 'free' ? '#10B981' : station.status === 'busy' ? '#F59E0B' : '#EF4444',
-              background: station.status === 'free' ? 'rgba(16,185,129,0.1)' : station.status === 'busy' ? 'rgba(245,158,11,0.1)' : 'rgba(239,68,68,0.1)'
-            }}>
-              {station.status === 'free' ? '空闲' : station.status === 'busy' ? '使用中' : '维护'}
+            <View
+              className={styles.statusTag}
+              style={{ color: level.color, background: `${level.color}15` }}
+            >
+              {level.text}
             </View>
           </View>
+
           <View className={styles.loadSection}>
             <View className={styles.loadRow}>
               <Text className={styles.loadLabel}>今日负载</Text>
@@ -130,68 +109,94 @@ const StationDetailPage: React.FC = () => {
                 className={styles.loadFill}
                 style={{
                   width: `${Math.min(loadPercent, 100)}%`,
-                  background: loadPercent >= 80 ? '#EF4444' : loadPercent >= 60 ? '#F59E0B' : loadPercent >= 30 ? '#3B82F6' : '#10B981'
+                  background: level.color
                 }}
               />
             </View>
           </View>
-          {stats && (
-            <View className={styles.statsGrid}>
-              <View className={styles.statsItem}>
-                <Text className={styles.statsValue} style={{ color: '#F59E0B' }}>{stats.servicing}</Text>
-                <Text className={styles.statsLabel}>服务中</Text>
-              </View>
-              <View className={styles.statsItem}>
-                <Text className={styles.statsValue} style={{ color: '#8B5CF6' }}>{stats.calling}</Text>
-                <Text className={styles.statsLabel}>叫号</Text>
-              </View>
-              <View className={styles.statsItem}>
-                <Text className={styles.statsValue} style={{ color: '#10B981' }}>{stats.completed}</Text>
-                <Text className={styles.statsLabel}>已完成</Text>
-              </View>
-              <View className={styles.statsItem}>
-                <Text className={styles.statsValue} style={{ color: '#EF4444' }}>{stats.noShow}</Text>
-                <Text className={styles.statsLabel}>未到</Text>
-              </View>
+
+          <View className={styles.statsGrid}>
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#F59E0B' }}>{stats.servicing}</Text>
+              <Text className={styles.statsLabel}>服务中</Text>
             </View>
-          )}
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#3B82F6' }}>{stats.waiting}</Text>
+              <Text className={styles.statsLabel}>等待</Text>
+            </View>
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#10B981' }}>{stats.completed}</Text>
+              <Text className={styles.statsLabel}>已完成</Text>
+            </View>
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#EF4444' }}>{stats.noShow}</Text>
+              <Text className={styles.statsLabel}>未到</Text>
+            </View>
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#8B5CF6' }}>{stats.total}</Text>
+              <Text className={styles.statsLabel}>合计</Text>
+            </View>
+            <View className={styles.statsItem}>
+              <Text className={styles.statsValue} style={{ color: '#F472B6' }}>¥{stats.revenue}</Text>
+              <Text className={styles.statsLabel}>营收</Text>
+            </View>
+          </View>
         </View>
 
         <View className={styles.section}>
-          <Text className={styles.sectionTitle}>📋 当日明细</Text>
-          {todayItems.length === 0 ? (
+          <Text className={styles.sectionTitle}>📋 当日明细（按时间）</Text>
+
+          {sortedApts.length === 0 ? (
             <View className={styles.emptyState}>
               <Text className={styles.emptyIcon}>📭</Text>
               <Text className={styles.emptyText}>本日暂无业务记录</Text>
             </View>
           ) : (
             <View className={styles.detailList}>
-              {todayItems.map(item => {
-                const t = typeMap[item.type];
+              {sortedApts.map(apt => {
+                const serviceNames = getServiceNames(apt.serviceIds);
+                const statusText = getDisplayStatus(apt);
+                const statusColor = getDisplayStatusColor(apt);
+                const queueNumber = getQueueNumberForApt(apt);
+                const isServicing = servicingItems.some(q => q.appointmentId === apt.id);
+
                 return (
-                  <View key={item.aptId} className={styles.detailItem} style={{ background: t.bg }}>
-                    <View className={styles.detailMain}>
+                  <View key={apt.id} className={styles.detailItem} style={{
+                    borderLeftColor: statusColor,
+                    borderLeftWidth: '6rpx',
+                    borderLeftStyle: 'solid'
+                  }}>
+                    <View className={styles.detailHeader}>
                       <View className={styles.detailLeft}>
-                        <View className={styles.typeTag} style={{ color: t.color, borderColor: t.color }}>
-                          {t.label}
-                        </View>
-                        <Text className={styles.queueNumber}>{item.queueNumber}</Text>
-                        <Text className={styles.customerName}>{item.customerName}</Text>
+                        <Text className={styles.detailTime}>{apt.startTime}-{apt.endTime}</Text>
+                        <Text className={styles.detailQueue}>{queueNumber}</Text>
+                        <Text className={styles.detailName}>{apt.customerName}</Text>
                       </View>
-                      {item.type === 'servicing' && (
-                        <View className={styles.completeBtn} onClick={() => handleComplete(item.queueNumber)}>
-                          <Text style={{ color: '#fff', fontSize: 22, fontWeight: 600 }}>完成</Text>
+                      <View
+                        className={styles.statusBadge}
+                        style={{ color: statusColor, borderColor: statusColor, background: `${statusColor}10` }}
+                      >
+                        {statusText}
+                      </View>
+                    </View>
+
+                    <View className={styles.serviceTags}>
+                      {serviceNames.map((name, i) => (
+                        <Text key={i} className={styles.serviceTag}>{name}</Text>
+                      ))}
+                    </View>
+
+                    <View className={styles.detailFooter}>
+                      <Text className={styles.detailPrice}>
+                        金额 ¥{apt.discountPrice || apt.totalPrice}
+                        {apt.memberDiscount && ` · ${Math.round(apt.memberDiscount * 10)}折`}
+                      </Text>
+                      {isServicing && (
+                        <View className={styles.completeBtn} onClick={() => handleComplete(queueNumber)}>
+                          <Text style={{ color: '#fff', fontSize: 22, fontWeight: 600 }}>完成服务</Text>
                         </View>
                       )}
                     </View>
-                    <View className={styles.detailServices}>
-                      {item.services.map((s, i) => (
-                        <Text key={i} className={styles.serviceTag}>{s}</Text>
-                      ))}
-                    </View>
-                    {item.time && (
-                      <Text className={styles.detailTime}>时段：{item.time}</Text>
-                    )}
                   </View>
                 );
               })}

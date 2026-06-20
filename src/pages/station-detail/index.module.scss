@@ -3,6 +3,7 @@
 .page {
   min-height: 100vh;
   background: $color-bg-page;
+  padding-bottom: 48rpx;
 }
 
 .empty {
@@ -110,26 +111,27 @@
 
 .statsGrid {
   display: flex;
+  flex-wrap: wrap;
   gap: $spacing-sm;
 }
 
 .statsItem {
-  flex: 1;
+  width: calc(33.33% - 16rpx);
   background: rgba(255, 255, 255, 0.15);
   border-radius: $radius-md;
-  padding: $spacing-sm;
+  padding: $spacing-sm $spacing-xs;
   text-align: center;
 }
 
 .statsValue {
-  font-size: $font-size-lg;
+  font-size: $font-size-md;
   font-weight: $font-weight-bold;
   color: $color-text-white;
   display: block;
 }
 
 .statsLabel {
-  font-size: $font-size-xs;
+  font-size: 20rpx;
   color: rgba(255, 255, 255, 0.85);
   margin-top: 4rpx;
   display: block;
@@ -172,40 +174,80 @@
 }
 
 .detailItem {
+  background: $color-bg-card;
   border-radius: $radius-lg;
   padding: $spacing-md $spacing-lg;
+  box-shadow: $shadow-card;
 }
 
-.detailMain {
+.detailHeader {
   display: flex;
   align-items: center;
-  margin-bottom: 10rpx;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
 }
 
 .detailLeft {
-  flex: 1;
   display: flex;
   align-items: center;
   gap: 16rpx;
   flex-wrap: wrap;
 }
 
-.typeTag {
-  font-size: $font-size-xs;
-  padding: 2rpx 14rpx;
+.detailTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  font-family: monospace;
+  background: $color-bg-hover;
+  padding: 4rpx 12rpx;
   border-radius: $radius-xs;
+}
+
+.detailQueue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.detailName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.statusBadge {
+  font-size: $font-size-xs;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-button;
   border: 1rpx solid;
   font-weight: $font-weight-semibold;
 }
 
-.queueNumber {
-  font-size: $font-size-md;
-  font-weight: $font-weight-bold;
-  color: $color-text-primary;
+.serviceTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-bottom: $spacing-sm;
 }
 
-.customerName {
+.serviceTag {
+  font-size: 22rpx;
+  background: $color-bg-hover;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-xs;
+  color: $color-text-secondary;
+}
+
+.detailFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-sm;
+  border-top: 1rpx solid $color-divider;
+}
+
+.detailPrice {
   font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
   color: $color-text-secondary;
 }
 
@@ -213,24 +255,4 @@
   background: $color-success;
   padding: 12rpx 28rpx;
   border-radius: $radius-button;
-}
-
-.detailServices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-  margin-bottom: 6rpx;
-}
-
-.serviceTag {
-  font-size: $font-size-xs;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 2rpx 14rpx;
-  border-radius: $radius-xs;
-  color: $color-text-secondary;
-}
-
-.detailTime {
-  font-size: $font-size-xs;
-  color: $color-text-tertiary;
 }

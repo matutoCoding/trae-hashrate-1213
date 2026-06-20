@@ -3,15 +3,16 @@
 .page {
   min-height: 100vh;
   background: $color-bg-page;
+  padding-bottom: 48rpx;
 }
 
 .header {
   background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
   margin: 0 -32rpx $spacing-xl;
-  padding: 40rpx 32rpx;
+  padding: 40rpx 32rpx 48rpx;
   border-radius: 0 0 32rpx 32rpx;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
 }
 
@@ -19,11 +20,20 @@
   font-size: 40rpx;
   font-weight: $font-weight-bold;
   color: $color-text-white;
+  display: block;
 }
 
 .headerDate {
   font-size: $font-size-sm;
   color: rgba(255, 255, 255, 0.85);
+  margin-top: 6rpx;
+  display: block;
+}
+
+.headerRevenue {
+  font-size: 36rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
 }
 
 .overviewGrid {
@@ -31,28 +41,32 @@
   flex-wrap: wrap;
   gap: $spacing-md;
   margin-bottom: $spacing-xl;
+  margin-top: -60rpx;
+  position: relative;
+  z-index: 2;
 }
 
 .overviewCard {
   width: calc(33.33% - 16rpx);
+  background: $color-bg-card;
   border-radius: $radius-lg;
-  padding: $spacing-lg $spacing-md;
+  padding: $spacing-md $spacing-sm;
   text-align: center;
   box-shadow: $shadow-card;
 }
 
 .overviewValue {
-  font-size: 48rpx;
+  font-size: 40rpx;
   font-weight: $font-weight-bold;
-  color: $color-text-white;
+  color: $color-text-primary;
   display: block;
   line-height: 1.1;
 }
 
 .overviewLabel {
   font-size: $font-size-xs;
-  color: rgba(255, 255, 255, 0.9);
-  margin-top: 4rpx;
+  color: $color-text-tertiary;
+  margin-top: 6rpx;
   display: block;
 }
 
@@ -68,131 +82,273 @@
   display: block;
 }
 
-.table {
+.periodGrid {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.periodCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.periodHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.periodIcon {
+  font-size: 32rpx;
+  margin-right: 10rpx;
+}
+
+.periodLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.periodStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.periodStat {
+  flex: 1;
+  text-align: center;
+}
+
+.periodNum {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  display: block;
+}
+
+.periodUnit {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.periodDivider {
+  width: 1rpx;
+  height: 48rpx;
+  background: $color-divider;
+}
+
+.tabBar {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 6rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  border-radius: $radius-md;
+}
+
+.tabItemActive {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(244, 114, 182, 0.1) 100%);
+  border-radius: $radius-md;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.listCard {
   background: $color-bg-card;
   border-radius: $radius-lg;
   overflow: hidden;
   box-shadow: $shadow-card;
 }
 
-.tableHeader {
+.listHeader {
   display: flex;
-  background: $color-bg-hover;
-  padding: $spacing-md;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
 }
 
-.th {
+.listLeft {
   flex: 1;
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  font-weight: $font-weight-semibold;
-  text-align: center;
-
-  &:first-child {
-    flex: 2;
-    text-align: left;
-  }
-}
-
-.tableRow {
   display: flex;
-  padding: $spacing-md;
-  border-top: 1rpx solid $color-divider;
   align-items: center;
 }
 
-.tdName {
-  flex: 2;
-  font-size: $font-size-sm;
-  color: $color-text-primary;
-  font-weight: $font-weight-medium;
-}
-
-.td {
-  flex: 1;
-  font-size: $font-size-sm;
-  color: $color-text-secondary;
-  text-align: center;
-}
-
-.stationList {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-md;
-}
-
-.stationCard {
-  background: $color-bg-card;
-  border-radius: $radius-lg;
-  padding: $spacing-lg;
-  box-shadow: $shadow-card;
-}
-
-.stationHeader {
-  display: flex;
-  align-items: center;
-  margin-bottom: $spacing-md;
-}
-
-.stationCode {
+.avatar {
   width: 64rpx;
   height: 64rpx;
+  border-radius: 50%;
   background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
-  border-radius: $radius-sm;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: $color-text-white;
   font-size: $font-size-md;
   font-weight: $font-weight-bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-right: $spacing-md;
 }
 
-.stationMeta {
-  flex: 1;
+.stationCode {
+  width: 56rpx;
+  height: 56rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+  border-radius: $radius-sm;
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
 }
 
-.stationName {
+.listName {
   font-size: $font-size-md;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
   display: block;
 }
 
-.stationStylist {
+.listSub {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
   margin-top: 4rpx;
   display: block;
 }
 
-.stationLevel {
-  font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
+.listRight {
+  text-align: right;
 }
 
-.stationStats {
-  display: flex;
-  gap: $spacing-sm;
-  padding-top: $spacing-md;
-  border-top: 1rpx solid $color-divider;
-}
-
-.statItem {
-  flex: 1;
-  text-align: center;
-}
-
-.statNum {
+.listRevenue {
   font-size: $font-size-md;
   font-weight: $font-weight-bold;
-  color: $color-text-primary;
+  color: $color-primary;
   display: block;
 }
 
-.statLab {
+.listExpand {
   font-size: $font-size-xs;
   color: $color-text-tertiary;
   margin-top: 4rpx;
   display: block;
+}
+
+.statsRow {
+  display: flex;
+  padding: 0 $spacing-lg $spacing-md;
+  gap: $spacing-sm;
+}
+
+.statMini {
+  flex: 1;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+
+  text {
+    display: block;
+    &:first-child {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $color-text-primary;
+      margin-bottom: 4rpx;
+    }
+  }
+}
+
+.expandContent {
+  border-top: 1rpx solid $color-divider;
+  padding: $spacing-md $spacing-lg;
+  background: $color-bg-hover;
+}
+
+.aptList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.aptRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+}
+
+.aptLeft {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.aptTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  font-family: monospace;
+}
+
+.aptNumber {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.aptName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.aptRight {
+  text-align: right;
+}
+
+.aptStatus {
+  font-size: 20rpx;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-xs;
+  border: 1rpx solid;
+  font-weight: $font-weight-medium;
+  display: inline-block;
+  margin-bottom: 4rpx;
+}
+
+.aptPrice {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  display: block;
+}
+
+.emptyList {
+  text-align: center;
+  padding: $spacing-md 0;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
 }

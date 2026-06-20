@@ -1,37 +1,33 @@
 import { create } from 'zustand';
 import { QueueItem, Station } from '@/types';
 import { useStylistStore } from './stylist';
+import { useAppointmentStore } from './appointment';
 
-const mockQueue: QueueItem[] = [
-  {
-    appointmentId: 'ap007',
-    queueNumber: 'A004',
-    customerName: '孙美玲',
-    serviceNames: ['创意总监剪裁'],
+const pickLeastLoadedFreeStation = (): Station | null => {
+  const stylistStore = useStylistStore.getState();
+  return stylistStore.getLeastLoadedFreeStation();
+};
+
+const releaseStationCalling = (stationId?: string) => {
+  if (!stationId) return;
+  const stylistStore = useStylistStore.getState();
+  stylistStore.setStationCalling(stationId, null);
+};
+
+const buildQueueItemFromAppointment = (apt: any, status: QueueItem['status'], stationId?: string, callCount = 0): QueueItem => {
+  const aptStore = useAppointmentStore.getState();
+  const serviceNames = aptStore.getServiceNames(apt.serviceIds);
+  return {
+    appointmentId: apt.id,
+    queueNumber: apt.queueNumber || apt.orderNo.slice(-4),
+    customerName: apt.customerName,
+    serviceNames,
     estimatedWait: 0,
-    status: 'calling',
-    stationId: 'st02',
-    callCount: 2
-  },
-  {
-    appointmentId: 'ap004',
-    queueNumber: 'B001',
-    customerName: '刘思琪',
-    serviceNames: ['时尚造型烫', '挑染/挂耳染'],
-    estimatedWait: 45,
-    status: 'waiting',
-    callCount: 0
-  },
-  {
-    appointmentId: 'ap006',
-    queueNumber: 'B002',
-    customerName: '陈思远',
-    serviceNames: ['精致洗剪吹', 'SPA养发洗护'],
-    estimatedWait: 90,
-    status: 'waiting',
-    callCount: 0
-  }
-];
+    status,
+    stationId: stationId || apt.stationId || undefined,
+    callCount
+  };
+};
 
 interface QueueStore {
   queue: QueueItem[];
@@ -53,59 +49,82 @@ interface QueueStore {
   updateServicingStation: (appointmentId: string, newStationId: string) => boolean;
   getWaitingCount: () => number;
   getMyQueuePosition: (appointmentId: string) => number;
-  getTodayStatsByStylist: () => Record<string, { waiting: number; calling: number; servicing: number; completed: number }>;
-  getTodayStatsByStation: () => Record<string, { waiting: number; calling: number; servicing: number; completed: number; noShow: number }>;
+  syncFromAppointments: () => void;
 }
 
-const pickLeastLoadedFreeStation = (): Station | null => {
-  const stylistStore = useStylistStore.getState();
-  return stylistStore.getLeastLoadedFreeStation();
+const initQueueFromAppointments = (): QueueItem[] => {
+  const { getTodayAppointments } = useAppointmentStore.getState();
+  const today = getTodayAppointments();
+  const items: QueueItem[] = [];
+
+  today.forEach(apt => {
+    if (apt.status === 'pending' || apt.status === 'confirmed' || apt.status === 'arrived') {
+      items.push(buildQueueItemFromAppointment(apt, 'waiting'));
+    }
+  });
+
+  return items;
 };
 
-const releaseStationCalling = (stationId?: string) => {
-  if (!stationId) return;
-  const stylistStore = useStylistStore.getState();
-  stylistStore.setStationCalling(stationId, null);
+const initCurrentCalling = (): QueueItem | null => {
+  const { stations } = useStylistStore.getState();
+  const callingStation = stations.find(s => s.callingAppointmentId);
+  if (!callingStation) return null;
+
+  const { getTodayAppointments, getServiceNames } = useAppointmentStore.getState();
+  const apt = getTodayAppointments().find(a => a.id === callingStation.callingAppointmentId);
+  if (!apt) return null;
+
+  return {
+    appointmentId: apt.id,
+    queueNumber: apt.queueNumber || apt.orderNo.slice(-4),
+    customerName: apt.customerName,
+    serviceNames: getServiceNames(apt.serviceIds),
+    estimatedWait: 0,
+    status: 'calling',
+    stationId: callingStation.id,
+    callCount: 2
+  };
+};
+
+const initServicingFromAppointments = (): QueueItem[] => {
+  const { getTodayAppointments, getServiceNames } = useAppointmentStore.getState();
+  const today = getTodayAppointments();
+  const items: QueueItem[] = [];
+
+  today.forEach(apt => {
+    if (apt.status === 'servicing' && apt.stationId) {
+      items.push({
+        appointmentId: apt.id,
+        queueNumber: apt.queueNumber || apt.orderNo.slice(-4),
+        customerName: apt.customerName,
+        serviceNames: getServiceNames(apt.serviceIds),
+        estimatedWait: 0,
+        status: 'servicing',
+        stationId: apt.stationId || undefined,
+        callCount: 1
+      });
+    }
+  });
+
+  return items;
 };
 
 export const useQueueStore = create<QueueStore>((set, get) => ({
-  queue: [...mockQueue],
-  currentCalling: mockQueue.find(q => q.status === 'calling') || null,
-  servicingItems: [
-    {
-      appointmentId: 'ap001',
-      queueNumber: 'A001',
-      customerName: '李雨桐',
-      serviceNames: ['创意总监剪裁', '蛋白矫正护理'],
-      estimatedWait: 0,
-      status: 'servicing',
-      stationId: 'st01',
-      callCount: 1
-    },
-    {
-      appointmentId: 'ap003',
-      queueNumber: 'A003',
-      customerName: '王建国',
-      serviceNames: ['精致洗剪吹'],
-      estimatedWait: 0,
-      status: 'servicing',
-      stationId: 'st03',
-      callCount: 1
-    },
-    {
-      appointmentId: 'ap005',
-      queueNumber: 'C001',
-      customerName: '赵雅婷',
-      serviceNames: ['蛋白矫正护理'],
-      estimatedWait: 0,
-      status: 'servicing',
-      stationId: 'st08',
-      callCount: 1
-    }
-  ],
-  completedCount: 12,
+  queue: initQueueFromAppointments(),
+  currentCalling: initCurrentCalling(),
+  servicingItems: initServicingFromAppointments(),
+  completedCount: 5,
   noShowCount: 1,
   holdItems: [],
+
+  syncFromAppointments: () => {
+    set({
+      queue: initQueueFromAppointments(),
+      currentCalling: initCurrentCalling(),
+      servicingItems: initServicingFromAppointments()
+    });
+  },
 
   addToQueue: (item) => {
     const { queue } = get();
@@ -114,8 +133,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   },
 
   callNext: () => {
-    const { queue, currentCalling } = get();
+    const { queue, currentCalling, holdItems } = get();
     const stylistStore = useStylistStore.getState();
+    const aptStore = useAppointmentStore.getState();
 
     if (currentCalling?.stationId) {
       releaseStationCalling(currentCalling.stationId);
@@ -123,8 +143,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
 
     if (currentCalling) {
       const fallback: QueueItem = { ...currentCalling, status: 'hold' as const };
+      aptStore.updateAppointmentStatus(currentCalling.appointmentId, 'confirmed');
       set({
-        holdItems: [...get().holdItems, fallback],
+        holdItems: [...holdItems, fallback],
         queue: queue.map(q => q.appointmentId === currentCalling.appointmentId ? fallback : q)
       });
       console.log('[QueueStore] 上一位顾客转暂不服务:', currentCalling.queueNumber);
@@ -138,9 +159,11 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
 
     const station = pickLeastLoadedFreeStation();
     const next = waiting[0];
+    const apt = aptStore.getTodayAppointments().find(a => a.id === next.appointmentId);
 
-    if (station) {
+    if (station && apt) {
       stylistStore.setStationCalling(station.id, next.appointmentId);
+      aptStore.updateAppointmentStation(apt.id, station.id, apt.stylistId);
     }
 
     const called: QueueItem = {
@@ -149,6 +172,10 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
       stationId: station?.id,
       callCount: next.callCount + 1
     };
+
+    if (apt) {
+      aptStore.updateAppointmentStatus(apt.id, 'arrived');
+    }
 
     set({
       queue: get().queue.map(q => q.appointmentId === next.appointmentId ? called : q),
@@ -159,9 +186,8 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   },
 
   startServicing: (queueNumber, stationId) => {
-    const { queue, servicingItems } = get();
-    const item = queue.find(q => q.queueNumber === queueNumber) ||
-      get().currentCalling;
+    const { queue, servicingItems, currentCalling } = get();
+    const item = queue.find(q => q.queueNumber === queueNumber) || currentCalling;
     if (!item) return;
 
     releaseStationCalling(stationId);
@@ -171,11 +197,15 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     stylistStore.incrementStationLoad(stationId);
     stylistStore.setStationAppointment(stationId, item.appointmentId);
 
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStatus(item.appointmentId, 'servicing');
+    aptStore.updateAppointmentStation(item.appointmentId, stationId);
+
     const servicing = { ...item, status: 'servicing' as const, stationId };
     set({
       queue: queue.filter(q => q.queueNumber !== queueNumber),
       servicingItems: [...servicingItems, servicing],
-      currentCalling: get().currentCalling?.queueNumber === queueNumber ? null : get().currentCalling,
+      currentCalling: currentCalling?.queueNumber === queueNumber ? null : currentCalling,
       holdItems: get().holdItems.filter(q => q.queueNumber !== queueNumber)
     });
     console.log('[QueueStore] 开始服务:', queueNumber, stationId);
@@ -190,6 +220,12 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
       stylistStore.setStationAppointment(item.stationId, null);
       stylistStore.decrementStationLoad(item.stationId);
     }
+
+    const aptStore = useAppointmentStore.getState();
+    if (item) {
+      aptStore.updateAppointmentStatus(item.appointmentId, 'completed');
+    }
+
     const completed: QueueItem | undefined = servicingItems.find(q => q.queueNumber === queueNumber);
     set({
       servicingItems: servicingItems.filter(q => q.queueNumber !== queueNumber),
@@ -202,10 +238,12 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   recall: (queueNumber) => {
     const { queue, currentCalling, holdItems } = get();
     const stylistStore = useStylistStore.getState();
+    const aptStore = useAppointmentStore.getState();
 
     if (currentCalling?.stationId && currentCalling.queueNumber !== queueNumber) {
       releaseStationCalling(currentCalling.stationId);
       const oldHold: QueueItem = { ...currentCalling, status: 'hold' as const };
+      aptStore.updateAppointmentStatus(currentCalling.appointmentId, 'confirmed');
       set({
         holdItems: [...holdItems, oldHold],
         queue: queue.map(q => q.appointmentId === currentCalling.appointmentId ? oldHold : q)
@@ -222,10 +260,13 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
       if (freeStation) {
         station = freeStation.id;
         stylistStore.setStationCalling(freeStation.id, item.appointmentId);
+        aptStore.updateAppointmentStation(item.appointmentId, station);
       }
     } else {
       stylistStore.setStationCalling(station, item.appointmentId);
     }
+
+    aptStore.updateAppointmentStatus(item.appointmentId, 'arrived');
 
     const recalled: QueueItem = { ...item, status: 'calling' as const, stationId: station, callCount: item.callCount + 1 };
     set({
@@ -242,6 +283,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
 
     releaseStationCalling(currentCalling.stationId);
 
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStatus(currentCalling.appointmentId, 'confirmed');
+
     const reverted = { ...currentCalling, status: 'waiting' as const };
     set({
       queue: queue.map(q => q.appointmentId === currentCalling.appointmentId ? reverted : q),
@@ -251,7 +295,7 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
   },
 
   holdCalling: (queueNumber) => {
-    const { currentCalling, queue } = get();
+    const { currentCalling, queue, holdItems } = get();
     const item = currentCalling?.queueNumber === queueNumber
       ? currentCalling
       : queue.find(q => q.queueNumber === queueNumber);
@@ -259,10 +303,13 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
 
     releaseStationCalling(item.stationId);
 
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStatus(item.appointmentId, 'confirmed');
+
     const held: QueueItem = { ...item, status: 'hold' as const };
     set({
       queue: queue.map(q => q.queueNumber === queueNumber ? held : q),
-      holdItems: [...get().holdItems.filter(q => q.queueNumber !== queueNumber), held],
+      holdItems: [...holdItems.filter(q => q.queueNumber !== queueNumber), held],
       currentCalling: currentCalling?.queueNumber === queueNumber ? null : currentCalling
     });
     console.log('[QueueStore] 暂不服务:', queueNumber);
@@ -277,6 +324,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     if (!item) return;
 
     releaseStationCalling(item.stationId);
+
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStatus(item.appointmentId, 'confirmed');
 
     const requeued: QueueItem = { ...item, status: 'waiting' as const, stationId: undefined, estimatedWait: 15 };
     set({
@@ -296,6 +346,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     if (!item) return;
 
     releaseStationCalling(item.stationId);
+
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStatus(item.appointmentId, 'noShow');
 
     const noShow: QueueItem = { ...item, status: 'noShow' as const };
     set({
@@ -336,6 +389,9 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     stylistStore.incrementStationLoad(newStationId);
     stylistStore.updateStationStatus(newStationId, 'busy');
 
+    const aptStore = useAppointmentStore.getState();
+    aptStore.updateAppointmentStation(appointmentId, newStationId);
+
     set({
       servicingItems: servicingItems.map(q =>
         q.appointmentId === appointmentId ? { ...q, stationId: newStationId } : q
@@ -354,58 +410,5 @@ export const useQueueStore = create<QueueStore>((set, get) => ({
     const waiting = queue.filter(q => q.status === 'waiting');
     const idx = waiting.findIndex(q => q.appointmentId === appointmentId);
     return idx >= 0 ? idx + 1 : 0;
-  },
-
-  getTodayStatsByStylist: () => {
-    const { queue, servicingItems, completedCount } = get();
-    const { stations, stylists } = useStylistStore.getState();
-    const stats: Record<string, { waiting: number; calling: number; servicing: number; completed: number }> = {};
-    stylists.forEach(s => {
-      stats[s.id] = { waiting: 0, calling: 0, servicing: 0, completed: 0 };
-    });
-    const aptIdToStylist: Record<string, string> = {};
-    stations.forEach(st => {
-      if (st.stylistId && st.currentAppointmentId) {
-        aptIdToStylist[st.currentAppointmentId] = st.stylistId;
-      }
-      if (st.stylistId && st.callingAppointmentId) {
-        aptIdToStylist[st.callingAppointmentId] = st.stylistId;
-      }
-    });
-    queue.forEach(q => {
-      const sid = aptIdToStylist[q.appointmentId];
-      if (!sid) return;
-      if (q.status === 'waiting') stats[sid].waiting++;
-      if (q.status === 'calling') stats[sid].calling++;
-    });
-    servicingItems.forEach(q => {
-      const sid = aptIdToStylist[q.appointmentId];
-      if (sid) stats[sid].servicing++;
-    });
-    return stats;
-  },
-
-  getTodayStatsByStation: () => {
-    const { queue, servicingItems } = get();
-    const { stations } = useStylistStore.getState();
-    const stats: Record<string, { waiting: number; calling: number; servicing: number; completed: number; noShow: number }> = {};
-    stations.forEach(st => {
-      stats[st.id] = { waiting: 0, calling: 0, servicing: 0, completed: 0, noShow: 0 };
-    });
-    queue.forEach(q => {
-      if (!q.stationId) return;
-      const s = stats[q.stationId];
-      if (!s) return;
-      if (q.status === 'waiting') s.waiting++;
-      if (q.status === 'calling') s.calling++;
-      if (q.status === 'noShow') s.noShow++;
-      if (q.status === 'completed') s.completed++;
-    });
-    servicingItems.forEach(q => {
-      if (q.stationId && stats[q.stationId]) {
-        stats[q.stationId].servicing++;
-      }
-    });
-    return stats;
   }
 }));
